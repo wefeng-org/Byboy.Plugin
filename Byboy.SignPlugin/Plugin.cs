@@ -55,27 +55,11 @@ namespace Byboy.SignPlugin
 
                         //添加积分,随机积分10~100
                         var interal = DbUtilsHelpers.GetIntegral(e.GroupUsername,e.Username);
-                        if (interal == null!) {
-                            interal = new() {
-                                Jf0 = new() { IntegralName = "积分0",IntegralVal = 0 },
-                                Jf1 = new() { IntegralName = "积分1",IntegralVal = 0 },
-                                Jf2 = new() { IntegralName = "积分2",IntegralVal = 0 },
-                                Jf3 = new() { IntegralName = "积分3",IntegralVal = 0 },
-                                Jf4 = new() { IntegralName = "积分4",IntegralVal = 0 },
-                                Jf5 = new() { IntegralName = "积分5",IntegralVal = 0 },
-                                Jf6 = new() { IntegralName = "积分6",IntegralVal = 0 },
-                                Jf7 = new() { IntegralName = "积分7",IntegralVal = 0 },
-                                Jf8 = new() { IntegralName = "积分8",IntegralVal = 0 },
-                                Jf9 = new() { IntegralName = "积分9",IntegralVal = 0 },
-                                Username = e.Username,
-                                GroupUsername = e.GroupUsername
-                            };
-                        }
-                        interal.Jf0.IntegralVal += ttttt;
+                        interal.Jf0 += ttttt;
                         interal.AddOrUpdateIntegralList();
 
                         // 回复签到成功
-                        await WeClient.Messages.SendTextMsg(bfClient.WX.UserLogin.OriginalId,new List<MultiMessageArgs> { new MultiMessageArgs { Username = e.GroupUsername,Type = 1,Content = $"@{e.Sender.Nickname},签到成功,这是你连续签到的第1天,奖励{interal.Jf0.IntegralName}:{ttttt}",AtUsernames = e.Sender.Username } });
+                        await WeClient.Messages.SendTextMsg(bfClient.WX.UserLogin.OriginalId,new List<MultiMessageArgs> { new MultiMessageArgs { Username = e.GroupUsername,Type = 1,Content = $"@{e.Sender.Nickname},签到成功,这是你连续签到的第1天,奖励{StaticData.RobotConfig.JfNames.Jf0Name}:{ttttt},剩余{StaticData.RobotConfig.JfNames.Jf0Name}:{ttttt}",AtUsernames = e.Sender.Username }, });
                     } else {
                         // 已签到
                         // 判断是否为当天签到
@@ -106,26 +90,10 @@ namespace Byboy.SignPlugin
                                 }).ExecuteCommandAsync();
                                 //添加积分,随机积分10~100
                                 var interal = DbUtilsHelpers.GetIntegral(e.GroupUsername,e.Username);
-                                if (interal == null!) {
-                                    interal = new () {
-                                        Jf0 = new() { IntegralName = "积分0",IntegralVal = 0 },
-                                        Jf1 = new() { IntegralName = "积分1",IntegralVal = 0 },
-                                        Jf2 = new() { IntegralName = "积分2",IntegralVal = 0 },
-                                        Jf3 = new() { IntegralName = "积分3",IntegralVal = 0 },
-                                        Jf4 = new() { IntegralName = "积分4",IntegralVal = 0 },
-                                        Jf5 = new() { IntegralName = "积分5",IntegralVal = 0 },
-                                        Jf6 = new() { IntegralName = "积分6",IntegralVal = 0 },
-                                        Jf7 = new() { IntegralName = "积分7",IntegralVal = 0 },
-                                        Jf8 = new() { IntegralName = "积分8",IntegralVal = 0 },
-                                        Jf9 = new() { IntegralName = "积分9",IntegralVal = 0 },
-                                        Username = e.Username,
-                                        GroupUsername = e.GroupUsername
-                                    };
-                                }
-                                interal.Jf0.IntegralVal += ttttt;
+                                interal.Jf0 += ttttt;
                                 interal.AddOrUpdateIntegralList();
                                 // 回复签到成功
-                                await WeClient.Messages.SendTextMsg(bfClient.WX.UserLogin.OriginalId,new List<MultiMessageArgs> { new MultiMessageArgs { Username = e.GroupUsername,Type = 1,Content = $"@{e.Sender.Nickname},签到成功,这是你连续签到的第{sign.SignDays + 1}天,奖励{interal.Jf0.IntegralName}:{ttttt}",AtUsernames = e.Sender.Username } });
+                                await WeClient.Messages.SendTextMsg(bfClient.WX.UserLogin.OriginalId,new List<MultiMessageArgs> { new MultiMessageArgs { Username = e.GroupUsername,Type = 1,Content = $"@{e.Sender.Nickname},签到成功,这是你连续签到的第{sign.SignDays + 1}天,奖励{StaticData.RobotConfig.JfNames.Jf0Name}:{ttttt},剩余{StaticData.RobotConfig.JfNames.Jf0Name}:{ttttt}",AtUsernames = e.Sender.Username } });
                             } else {
                                 // 未连续签到
                                 // 更新签到记录
@@ -138,26 +106,10 @@ namespace Byboy.SignPlugin
                                 }).ExecuteCommandAsync();
                                 //添加积分,随机积分10~100
                                 var interal = DbUtilsHelpers.GetIntegral(e.GroupUsername,e.Username);
-                                if (interal == null!) {
-                                    interal = new () {
-                                        Jf0 = new() { IntegralName = "积分0",IntegralVal = 0 },
-                                        Jf1 = new() { IntegralName = "积分1",IntegralVal = 0 },
-                                        Jf2 = new() { IntegralName = "积分2",IntegralVal = 0 },
-                                        Jf3 = new() { IntegralName = "积分3",IntegralVal = 0 },
-                                        Jf4 = new() { IntegralName = "积分4",IntegralVal = 0 },
-                                        Jf5 = new() { IntegralName = "积分5",IntegralVal = 0 },
-                                        Jf6 = new() { IntegralName = "积分6",IntegralVal = 0 },
-                                        Jf7 = new() { IntegralName = "积分7",IntegralVal = 0 },
-                                        Jf8 = new() { IntegralName = "积分8",IntegralVal = 0 },
-                                        Jf9 = new() { IntegralName = "积分9",IntegralVal = 0 },
-                                        Username = e.Username,
-                                        GroupUsername = e.GroupUsername
-                                    };
-                                }
-                                interal.Jf0.IntegralVal += ttttt;
+                                interal.Jf0 += ttttt;
                                 interal.AddOrUpdateIntegralList();
                                 // 回复签到成功
-                                await WeClient.Messages.SendTextMsg(bfClient.WX.UserLogin.OriginalId,new List<MultiMessageArgs> { new MultiMessageArgs { Username = e.GroupUsername,Type = 1,Content = $"@{e.Sender.Nickname},签到成功,这是你连续签到的第{1}天,奖励{interal.Jf0.IntegralName}:{ttttt}",AtUsernames = e.Sender.Username } });
+                                await WeClient.Messages.SendTextMsg(bfClient.WX.UserLogin.OriginalId,new List<MultiMessageArgs> { new MultiMessageArgs { Username = e.GroupUsername,Type = 1,Content = $"@{e.Sender.Nickname},签到成功,这是你连续签到的第{1}天,奖励{StaticData.RobotConfig.JfNames.Jf0Name}:{ttttt},剩余{StaticData.RobotConfig.JfNames.Jf0Name}:{ttttt}",AtUsernames = e.Sender.Username } });
                             }
                         }
                     }
