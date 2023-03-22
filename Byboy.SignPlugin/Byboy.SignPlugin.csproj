@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="DbUtils\DbUtil.cs~RF585b7be.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="MG.Protobuf">
       <HintPath>C:\Users\Byboy\Desktop\dotnet6.0\Bin\MG.Protobuf.dll</HintPath>
       <Private>False</Private>
