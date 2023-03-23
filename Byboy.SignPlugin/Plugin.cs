@@ -12,19 +12,19 @@ namespace Byboy.SignPlugin
 {
     public class Plugin : IPlugin
     {
-        public string Name => "签到插件";
+        public override string Name => "签到插件";
 
-        public string Version => "v1.0";
+        public override string Version => "v1.0";
 
-        public string Author => "Byboy";
+        public override string Author => "Byboy";
 
-        public string Description => "用户签到";
+        public override string Description => "用户签到";
 
-        public BaseConfig Config { get; set; }
-        public bool IsOpen { get; set; }
+        public override BaseConfig Config { get; set; }
+        public override bool IsOpen { get; set; }
         public Random r = new();
 
-        public void Initialize()
+        public override void Initialize()
         {
             // 初始化数据库
             try {
@@ -802,14 +802,9 @@ namespace Byboy.SignPlugin
             return 0;
         }
 
-        public void Install()
+        public override void Install()
         {
             Eve.OnLog(this,"初始化成功");
-        }
-
-        public void Terminate()
-        {
-            Eve.ReceiveGroupMessage -= Eve_ReceiveGroupMessage;
         }
     }
 }

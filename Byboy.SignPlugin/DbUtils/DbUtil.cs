@@ -98,7 +98,7 @@ namespace Byboy.SignPlugin.DbUtils
         }
 
         /// <summary>
-        /// 签到月榜
+        /// 今日签到
         /// </summary>
         /// <param name="ExternalId"></param>
         /// <param name="Top"></param>
@@ -107,7 +107,7 @@ namespace Byboy.SignPlugin.DbUtils
         internal static List<ClusterSign>    GetSignByLastSignTime(string groupUsername,int top,DateTime today)
         {
             try {
-                return Db.Queryable<ClusterSign>().Where(t => t.SignCount > 0 && t.GroupUsername == groupUsername && t.LastSignTime > today.Date).Take(top).OrderBy(t => t.LastSignTime).ToList();
+                return Db.Queryable<ClusterSign>().Where(t => t.SignCount > 0 && t.GroupUsername == groupUsername && t.LastSignTime > today.Date).Take(top).OrderBy(t => t.LastSignTime,OrderByType.Desc).ToList();
             } catch (Exception) {
             }
             return null!;
@@ -122,7 +122,7 @@ namespace Byboy.SignPlugin.DbUtils
         internal static List<ClusterSign> GetSignByMonthSentCount(string groupUsername,int top,DateTime dateTime)
         {
             try {
-                return Db.Queryable<ClusterSign>().Where(t => t.SignCount > 0 && t.GroupUsername == groupUsername && t.LastSentTime > dateTime.Date).Take(top).OrderBy(t => t.MonthSentCount).ToList();
+                return Db.Queryable<ClusterSign>().Where(t => t.SignCount > 0 && t.GroupUsername == groupUsername && t.LastSentTime > dateTime.Date).Take(top).OrderBy(t => t.MonthSentCount,OrderByType.Desc).ToList();
             } catch (Exception) {
             }
             return null!;
@@ -137,7 +137,7 @@ namespace Byboy.SignPlugin.DbUtils
         internal static List<ClusterSign> GetSignByMonthSignCount(string groupUsername,int top,DateTime dateTime)
         {
             try {
-                return Db.Queryable<ClusterSign>().Where(t => t.SignCount > 0 && t.GroupUsername == groupUsername && t.LastSentTime > dateTime.Date).Take(top).OrderBy(t => t.MonthSentCount).ToList();
+                return Db.Queryable<ClusterSign>().Where(t => t.SignCount > 0 && t.GroupUsername == groupUsername && t.LastSentTime > dateTime.Date).Take(top).OrderBy(t => t.MonthSignCount,OrderByType.Desc).ToList();
             } catch (Exception) {
             }
             return null!;
@@ -151,7 +151,7 @@ namespace Byboy.SignPlugin.DbUtils
         internal static List<ClusterSign> GetSignBySentCount(string groupUsername,int top)
         {
             try {
-                return Db.Queryable<ClusterSign>().Where(t => t.GroupUsername == groupUsername).Take(top).OrderBy(t => t.SentCount).ToList();
+                return Db.Queryable<ClusterSign>().Where(t => t.GroupUsername == groupUsername).Take(top).OrderBy(t => t.SentCount,OrderByType.Desc).ToList();
             } catch (Exception) {
             }
             return null!;
@@ -165,7 +165,7 @@ namespace Byboy.SignPlugin.DbUtils
         internal static List<ClusterSign> GetSignBySignCount(string groupUsername,int top)
         {
             try {
-                return Db.Queryable<ClusterSign>().Where(t => t.GroupUsername == groupUsername && t.SignCount > 0).Take(top).OrderBy(t => t.MonthSentCount).ToList();
+                return Db.Queryable<ClusterSign>().Where(t => t.GroupUsername == groupUsername && t.SignCount > 0).Take(top).OrderBy(t => t.SignCount,OrderByType.Desc).ToList();
             } catch (Exception) {
                 
             }
@@ -179,7 +179,7 @@ namespace Byboy.SignPlugin.DbUtils
         /// <returns></returns>
         internal static int GetSignCount(string groupUsername,DateTime today)
         {
-            return Db.Queryable<ClusterSign>().Where(t => t.GroupUsername == groupUsername && t.LastSignTime.HasValue && t.LastSignTime.Value.Date == today.Date).Count();
+            return Db.Queryable<ClusterSign>().Where(t => t.GroupUsername == groupUsername && t.LastSignTime.HasValue && t.LastSignTime.Value > today).Count();
         }
         /// <summary>
         /// 保存配置

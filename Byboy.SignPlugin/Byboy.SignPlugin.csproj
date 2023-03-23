@@ -7,24 +7,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="DbUtils\DbUtil.cs~RF585b7be.TMP" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="MG.Protobuf">
-      <HintPath>C:\Users\Byboy\Desktop\main\Bin\MG.Protobuf.dll</HintPath>
+      <HintPath>C:\Users\Byboy\Desktop\dotnet6.0\Bin\MG.Protobuf.dll</HintPath>
     </Reference>
     <Reference Include="MG.WeCode">
-      <HintPath>C:\Users\Byboy\Desktop\main\Bin\MG.WeCode.dll</HintPath>
+      <HintPath>C:\Users\Byboy\Desktop\dotnet6.0\Bin\MG.WeCode.dll</HintPath>
     </Reference>
     <Reference Include="Plugin">
-      <HintPath>C:\Users\Byboy\Desktop\main\Bin\Plugin.dll</HintPath>
+      <HintPath>C:\Users\Byboy\Desktop\dotnet6.0\Bin\Plugin.dll</HintPath>
     </Reference>
     <Reference Include="SqlSugar">
-      <HintPath>C:\Users\Byboy\Desktop\main\Bin\SqlSugar.dll</HintPath>
+      <HintPath>C:\Users\Byboy\Desktop\dotnet6.0\Bin\SqlSugar.dll</HintPath>
     </Reference>
     <Reference Include="SuperWx">
-      <HintPath>C:\Users\Byboy\Desktop\main\Bin\SuperWx.dll</HintPath>
+      <HintPath>C:\Users\Byboy\Desktop\dotnet6.0\Bin\SuperWx.dll</HintPath>
     </Reference>
   </ItemGroup>
 
