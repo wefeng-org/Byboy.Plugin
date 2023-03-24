@@ -46,14 +46,14 @@ namespace Byboy.SignPlugin
         }
 
 
-        private async Task Plugin_ReceiveFriendMessage(TLS_BFClent sender, ReceiveFriendMessageArgs e)
+        private async Task Plugin_ReceiveFriendMessage(WXUserLogin sender, ReceiveFriendMessageArgs e)
         {
             if (e.Content.MsgType == MessageType.NORMALIM)
             {
                 var result = onReceiveFriendMessage(e.Username, e.Content.Text);
                 if (!string.IsNullOrWhiteSpace(result))
                 {
-                    await SendTextMsg(sender.WX.UserLogin.OriginalId, new() { new() { Username = e.Username, Type = 1, Content = result } });
+                    await SendTextMsg(sender.OriginalId, new() { new() { Username = e.Username, Type = 1, Content = result } });
                 }
             }
         }
@@ -65,27 +65,27 @@ namespace Byboy.SignPlugin
 
         private string onReceiveFriendMessage(string username,string Message)
         {
-            string result = null;
-            Match m = null;
+            string result = null!;
+            Match m = null!;
             try {
                 m = Regex.Match(Message,@"^(\S+)\s+(?<chatroom>(\d{1,12})@chatroom)(.*?)$",RegexOptions.Singleline);
                 if (!m.Success)
-                    return null;
+                    return null!;
                 string ExternalId = m.Groups["chatroom"].Value;
                 ClusterConfig cc = ExternalId.GetClusterConfig();
                 if (cc == null)
-                    return null;
+                    return null!;
 
                 //if (!StaticData.RobotConfig.AdminUsername.Split(",").Contains(username)) {
                 //    if (ExternalId < 10000)
-                //        return null;
+                //        return null!;
 
                 //    var cluster = this.User.Clusters.FirstOrDefault(t => t.ExternalId == ExternalId);
                 //    if (cluster == null)
-                //        return null;
+                //        return null!;
                 //    var member = cluster.members.FirstOrDefault(t => t.QQ == QQ);
                 //    if (member == null || (cluster.Creator != member.QQ && !member.IsAdmin()))
-                //        return null;
+                //        return null!;
                 //}
 
                 var config = cc.ConfigObj;
@@ -298,7 +298,7 @@ namespace Byboy.SignPlugin
             return result;
         }
 
-        private async Task Plugin_ReceiveGroupMessage(TLS_BFClent? bfClient, global::Plugin.EveEntitys.ReceiveGroupMessageArgs e)
+        private async Task Plugin_ReceiveGroupMessage(WXUserLogin sender, global::Plugin.EveEntitys.ReceiveGroupMessageArgs e)
         {
             var cc = e.GroupUsername.GetClusterConfig();
             if (cc == null)
@@ -308,7 +308,7 @@ namespace Byboy.SignPlugin
 
             if (e.Content.Text == "开启签到") {
                 if (IsRobotAdmins(username) || e.Group.OwnerUsername == username || e.Group.IsAdmin) {
-                    string result = null;
+                    string result = null!;
                     if (cc.Id == 2 && !IsRobotAdmins(username))
                         result = $@"@{e.Sender.Nickname}管理员禁止修改签到设置";
                     else if (config.Status)
@@ -326,12 +326,12 @@ namespace Byboy.SignPlugin
 清理未发言+天数，例如：清理未发言30，表示清理30天内未发言记录
 清理未签到+天数，例如：清理未签到30，表示清理30天内未签到记录";
                     }
-                    await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
+                    await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
                     return;
                 }
             } else if (e.Content.Text == "关闭签到") {
                 if (IsRobotAdmins(username) || e.Group.OwnerUsername == username || e.Group.IsAdmin) {
-                    string result = null;
+                    string result = null!;
                     if (cc.Id == 2 && !IsRobotAdmins(username))
                         result = $@"@{e.Sender.Nickname}管理员禁止修改签到设置";
                     else {
@@ -340,28 +340,28 @@ namespace Byboy.SignPlugin
                         result = $@"@{e.Sender.Nickname}签到关闭成功！
 如需开启请回复：开启签到";
                     }
-                    await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
+                    await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
                     return;
                 }
             } else if (e.Content.Text.StartsWith("清理未发言")) {
                 if (IsRobotAdmins(username) || e.Group.OwnerUsername == username || e.Group.IsAdmin) {
-                    string result = null;
+                    string result = null!;
                     int count = DbUtil.DeleteSignByLastSentTime(e.GroupUsername,DateTime.Now.AddDays(-1 * int.Parse(e.Content.Text[6..].Trim())));
                     result = string.Format($@"@{e.Sender.Nickname}成功删除{0}条数据",count);
-                    await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
+                    await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
                     return;
                 }
             } else if (e.Content.Text.StartsWith("清理未签到")) {
                 if (IsRobotAdmins(username) || e.Group.OwnerUsername == username || e.Group.IsAdmin) {
-                    string result = null;
+                    string result = null!;
                     var count = DbUtil.DeleteSignByLastSignTime(e.GroupUsername,DateTime.Now.AddDays(-1 * int.Parse(e.Content.Text[6..].Trim())));
                     result = string.Format($@"@{e.Sender.Nickname}成功删除{0}条数据",count);
-                    await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
+                    await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
                     return;
                 }
             } else if (e.Content.Text.Trim() == "查看签到设置") {
                 if (IsRobotAdmins(username) || e.Group.OwnerUsername == username || e.Group.IsAdmin) {
-                    string result = null;
+                    string result = null!;
                     if (cc.Id == 2 && !IsRobotAdmins(username))
                         result = $@"@{e.Sender.Nickname}管理员禁止修改签到设置";
                     else {
@@ -407,12 +407,12 @@ namespace Byboy.SignPlugin
                         sb.AppendFormat("请复制以上内容（不包括本句），修改后回复即可完成设置。");
                         result = sb.ToString();
                     }
-                    await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
+                    await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
                     return;
                 }
             } else if (e.Content.Text.Trim().StartsWith("签到设置")) {
                 if (IsRobotAdmins(username) || e.Group.OwnerUsername == username || e.Group.IsAdmin) {
-                    string result = null;
+                    string result = null!;
                     if (cc.Id == 2 && !IsRobotAdmins(username))
                         result = $@"@{e.Sender.Nickname}管理员禁止修改签到设置";
                     else {
@@ -548,7 +548,7 @@ namespace Byboy.SignPlugin
                                     break;
                                 default: {
                                     result = $@"@{e.Sender.Nickname}存在未知指令，请先发送【查看签到设置】";
-                                    await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
+                                    await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
                                 }
                                 return;
                             }
@@ -557,7 +557,7 @@ namespace Byboy.SignPlugin
                         DbUtil.SaveClusterConfig(cc);
                         result = $@"@{e.Sender.Nickname}设置成功";
                     }
-                    await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
+                    await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
                     return;
                 }
             }
@@ -591,21 +591,21 @@ namespace Byboy.SignPlugin
                 if (config.Hellos.Count > level && !config.Hellos[level].Equals("null"))//每日首次发消息欢迎
                 {
                     var result = ReplaceParams(config.Hellos[level],config,sign,null);
-                    await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
+                    await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
                 }
             }
 
 
             if (config.FirstSign && first) {
                 var result = Sign(e,config,now,today,sign);
-                await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
+                await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
             } else if (Regex.IsMatch(e.Content.Text.Trim(),config.Cmd,RegexOptions.IgnoreCase))//签到
               {
                 sign.Nickname = e.Sender.Nickname;
                 if (!config.SignTime.Contains(now.Hour))//签到时间检查
                 {
                     var msg = ReplaceParams(config.Lang1,config,sign,null);
-                    await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + msg } });
+                    await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + msg } });
                 } else if (sign.LastSignTime.HasValue &&//重复签到检查
                       sign.LastSignTime.Value.Year == now.Year &&
                       sign.LastSignTime.Value.Month == now.Month &&
@@ -616,15 +616,15 @@ namespace Byboy.SignPlugin
                         string sExt = iExt.ToString() + StaticData.RobotConfig.JfNames.ExtcreditsName(config.Type);//查询积分类型名称
                         var msg = ReplaceParams(config.Lang2,config,sign);//替换群名变量
                         msg = msg.Replace("[扣除积分]",sExt);//替换[扣除积分]变量
-                        await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + msg } });
+                        await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + msg } });
                     } else {
                         var msg = ReplaceParams(config.Lang4,config,sign);
-                        await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + msg } });
+                        await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + msg } });
                     }
                 } else//开始签到了
                   {
                     var result = Sign(e,config,now,today,sign);
-                    await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
+                    await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
                 }
 
             }
@@ -633,7 +633,7 @@ namespace Byboy.SignPlugin
             if (e.Content.Text.Trim().Equals(config.Lang5))//签到帮助
             {
                 var msg = ReplaceParams(config.Lang6,config,sign);
-                await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + msg } });
+                await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + msg } });
             } else if (e.Content.Text.Trim().Equals(config.Lang7))//签到等级
               {
                 StringBuilder sb = new StringBuilder();
@@ -646,31 +646,31 @@ namespace Byboy.SignPlugin
                 } else
                     sb.AppendFormat("模板错误，请联系群主、管理员修改");
                 var msg = ReplaceParams(sb.ToString(),config,sign);
-                await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + msg } });
+                await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + msg } });
             } else if (e.Content.Text.Trim().Equals(config.Lang9))//签到总榜
               {
                 var result = ReplaceFor(config.Lang10,DbUtil.GetSignBySignCount(e.GroupUsername,config.Top),config);
-                await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
+                await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
             } else if (e.Content.Text.Trim().Equals(config.Lang11))//签到月榜
               {
                 var result = ReplaceFor(config.Lang12,DbUtil.GetSignByMonthSignCount(e.GroupUsername,config.Top,new DateTime(now.Year,now.Month,1)),config);
-                await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
+                await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
             } else if (e.Content.Text.Trim().Equals(config.Lang13))//今日签到
               {
                 var result = ReplaceFor(config.Lang14,DbUtil.GetSignByLastSignTime(e.GroupUsername,config.Top,today),config);
-                await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
+                await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
             } else if (e.Content.Text.Trim().Equals(config.Lang15))//发言总榜
               {
                 var result = ReplaceFor(config.Lang16,DbUtil.GetSignBySentCount(e.GroupUsername,config.Top),config);
-                await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
+                await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
             } else if (e.Content.Text.Trim().Equals(config.Lang17))//发言月榜
               {
                 var result = ReplaceFor(config.Lang18,DbUtil.GetSignByMonthSentCount(e.GroupUsername,config.Top,new DateTime(now.Year,now.Month,1)),config);
-                await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
+                await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
             } else if (e.Content.Text.Trim().Equals(config.Lang19))//签到信息
               {
                 var msg = ReplaceParams(config.Lang20,config,sign);
-                await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + msg } });
+                await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + msg } });
             }
 
             if (config.Random > 0 && r.Next(1000) < config.Random)//中奖了。。。
@@ -679,7 +679,7 @@ namespace Byboy.SignPlugin
                 DbUtilsHelpers.UpdateExtcredits(e.GroupUsername,e.Username,config.RndType,lExt);
                 string msg = config.Lang21[lExt % config.Lang21.Count].Replace("[基本积分]",lExt.ToString() + StaticData.RobotConfig.JfNames.ExtcreditsName(config.RndType));
                 msg = ReplaceParams(msg,config,sign);
-                await SendTextMsg(bfClient.WX.UserLogin.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + msg } });
+                await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + msg } });
             }
         }
 

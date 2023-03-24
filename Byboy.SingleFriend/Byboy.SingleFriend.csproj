@@ -7,18 +7,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="MG.Protobuf">
-      <HintPath>C:\Users\Byboy\Desktop\main\Bin\MG.Protobuf.dll</HintPath>
-    </Reference>
-    <Reference Include="MG.WeCode">
-      <HintPath>C:\Users\Byboy\Desktop\main\Bin\MG.WeCode.dll</HintPath>
-    </Reference>
-    <Reference Include="Plugin">
-      <HintPath>C:\Users\Byboy\Desktop\main\Bin\Plugin.dll</HintPath>
-    </Reference>
-    <Reference Include="SuperWx">
-      <HintPath>C:\Users\Byboy\Desktop\main\Bin\SuperWx.dll</HintPath>
-    </Reference>
+	  <Reference Include="MG.Protobuf">
+		  <HintPath>C:\Users\Byboy\Desktop\dotnet6.0\Bin\MG.Protobuf.dll</HintPath>
+		  <Private>False</Private>
+	  </Reference>
+	  <Reference Include="MG.WeCode">
+		  <HintPath>C:\Users\Byboy\Desktop\dotnet6.0\Bin\MG.WeCode.dll</HintPath>
+		  <Private>False</Private>
+	  </Reference>
+	  <Reference Include="Plugin">
+		  <HintPath>C:\Users\Byboy\Desktop\dotnet6.0\Bin\Plugin.dll</HintPath>
+		  <Private>False</Private>
+	  </Reference>
+	  <Reference Include="SuperWx">
+		  <HintPath>C:\Users\Byboy\Desktop\dotnet6.0\Bin\SuperWx.dll</HintPath>
+		  <Private>False</Private>
+	  </Reference>
   </ItemGroup>
 
 </Project>

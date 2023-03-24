@@ -1,5 +1,5 @@
 ﻿using Plugin;
-using WeChat.Pb.Entites;
+using SuperWx;
 
 namespace Byboy.SingleFriend
 {
@@ -31,63 +31,56 @@ namespace Byboy.SingleFriend
         {
             ReceiveFriendMessage += MailPlugin_ReceiveFriendMessage;
         }
+        List<string> hfList = new();
 
-        private async Task MailPlugin_ReceiveFriendMessage(SuperWx.TLS_BFClent sender, Plugin.EveEntitys.ReceiveFriendMessageArgs e)
+        private async Task MailPlugin_ReceiveFriendMessage(WXUserLogin sender,Plugin.EveEntitys.ReceiveFriendMessageArgs e)
         {
+            var orid = sender.OriginalId;
             //判断发消息的人是否为管理员
-            if (StaticData.RobotConfig.AdminUsername.Split(",").Contains(e.Username))
-            {
+            if (StaticData.RobotConfig.AdminUsername.Split(",").Contains(e.Username)) {
                 //如果是管理员则执行
                 // 判断消息是否为指定的消息“查询黑粉”
-                if (e.Content.MsgType == Plugin.EveEntitys.MessageType.NORMALIM)
-                {
-                    if (e.Content.Text.Equals("查询黑粉"))
-                    {
-                        var orid = sender.WX.UserLogin.OriginalId;
+                if (e.Content.MsgType == Plugin.EveEntitys.MessageType.NORMALIM) {
+                    if (e.Content.Text.Equals("查询黑粉")) {
                         List<string> usernameList = new();
                         int currentWxcontactSeq = 0;
                         WeChat.Pb.Entites.InitContactResp t = null;
                         //拿到所有的好友列表
-                        do
-                        {
-                            t = await InitContact(orid, currentWxcontactSeq, int.MaxValue);
+                        do {
+                            t = await InitContact(orid,currentWxcontactSeq,int.MaxValue);
                             currentWxcontactSeq = t.CurrentWxcontactSeq;
                             usernameList.AddRange(t.ContactUsernameList);
                         } while (t.ContactUsernameList.Length != 0);
                         //查询好友信息
 
                         int i = 0;
-                        List<string> hfList = new();
-                        do
-                        {
+                        do {
                             var GetUserList = new List<string>();
-                            if (usernameList.Count - i < 20)
-                            {
+                            if (usernameList.Count - i < 20) {
                                 GetUserList = usernameList.ToArray()[i..].ToList();
-                            }
-                            else
-                            {
+                            } else {
                                 GetUserList = usernameList.ToArray()[i..(i + 20)].ToList();
                             }
-                            WeChat.Pb.Entites.GetContactResponse getContactResponse = await GetContact(orid, GetUserList);
+                            WeChat.Pb.Entites.GetContactResponse getContactResponse = await GetContact(orid,GetUserList);
                             hfList.AddRange(getContactResponse.Ticket.Select(t => t.Username));
                             i += 20;
                         } while (i > usernameList.Count);
 
                         //创建一个标签
-                        var listResp = await CreateLabels(orid, new() { "黑粉" });
+                        var listResp = await CreateLabels(orid,new List<string> { "黑粉" });
                         var labelId = listResp.LabelPairList[0].LabelId;
-                        hfList.ForEach(async t =>
-                        {
-                            await UpdataFriendLabels(orid, t, new() { (int)labelId });
+                        hfList.ForEach(async t => {
+                            await UpdataFriendLabels(orid,t,new List<int> { (int)labelId });
                         });
 
-                        await SendTextMsg(orid, e.Username, $"共检查到{hfList.Count}个黑粉，已经放入黑粉标签中，请查看，如需删除，请发送指令“删除黑粉”");
-                    }else if (e.Content.Text.Equals("删除黑粉"))
-                    {
+                        await SendTextMsg(orid,e.Username,$"共检查到{hfList.Count}个黑粉，已经放入黑粉标签中，请查看，如需删除，请发送指令“删除黑粉”");
+                        e.Cancel = true;
+
+                    } else if (e.Content.Text.Equals("删除黑粉")) {
                         // 需要删除好友接口
+                        await SendTextMsg(orid,e.Username,$"共检删除了{hfList.Count}个黑粉");
+                        e.Cancel = true;
                     }
-                    e.Cancel = true;
                 }
                 //非指定命令无视命令
             }
