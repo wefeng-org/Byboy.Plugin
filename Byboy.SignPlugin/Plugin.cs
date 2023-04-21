@@ -3,7 +3,6 @@ using Plugin;
 using Plugin.DbEntitys;
 using Plugin.EveEntitys;
 using SuperWx;
-using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using WeFeng.Db;
@@ -31,8 +30,8 @@ namespace Byboy.SignPlugin
                 DbUtil.Db.DbMaintenance.CreateDatabase();
                 // 初始化表
                 DbUtil.Db.CodeFirst.InitTables(typeof(ClusterSign),typeof(ClusterConfig));
-                DbUtil.SaveClusterConfig(new ClusterConfig() { Id = 1, GroupUsername = "默认配置",ConfigObj = new ConfigObj { Status = false } });
-                DbUtil.SaveClusterConfig(new ClusterConfig() { Id = 2, GroupUsername = "全局配置",ConfigObj = new ConfigObj { Status = false } });
+                DbUtil.SaveClusterConfig(new ClusterConfig() { Id = 1,GroupUsername = "默认配置",ConfigObj = new ConfigObj { Status = false } });
+                DbUtil.SaveClusterConfig(new ClusterConfig() { Id = 2,GroupUsername = "全局配置",ConfigObj = new ConfigObj { Status = false } });
             } catch (Exception ex) {
                 Console.WriteLine(ex);
             }
@@ -46,14 +45,12 @@ namespace Byboy.SignPlugin
         }
 
 
-        private async Task Plugin_ReceiveFriendMessage(WXUserLogin sender, ReceiveFriendMessageArgs e)
+        private async Task Plugin_ReceiveFriendMessage(WXUserLogin sender,ReceiveFriendMessageArgs e)
         {
-            if (e.Content.MsgType == MessageType.NORMALIM)
-            {
-                var result = onReceiveFriendMessage(e.Username, e.Content.Text);
-                if (!string.IsNullOrWhiteSpace(result))
-                {
-                    await SendTextMsg(sender.OriginalId, new() { new() { Username = e.Username, Type = 1, Content = result } });
+            if (e.Content.MsgType == MessageType.NORMALIM) {
+                var result = onReceiveFriendMessage(e.Username,e.Content.Text);
+                if (!string.IsNullOrWhiteSpace(result)) {
+                    await SendTextMsg(sender.OriginalId,new() { new() { Username = e.Username,Type = 1,Content = result } });
                 }
             }
         }
@@ -298,7 +295,7 @@ namespace Byboy.SignPlugin
             return result;
         }
 
-        private async Task Plugin_ReceiveGroupMessage(WXUserLogin sender, global::Plugin.EveEntitys.ReceiveGroupMessageArgs e)
+        private async Task Plugin_ReceiveGroupMessage(WXUserLogin sender,global::Plugin.EveEntitys.ReceiveGroupMessageArgs e)
         {
             var cc = e.GroupUsername.GetClusterConfig();
             if (cc == null)
@@ -327,6 +324,7 @@ namespace Byboy.SignPlugin
 清理未签到+天数，例如：清理未签到30，表示清理30天内未签到记录";
                     }
                     await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
+                    e.Cancel = true;
                     return;
                 }
             } else if (e.Content.Text == "关闭签到") {
@@ -341,6 +339,7 @@ namespace Byboy.SignPlugin
 如需开启请回复：开启签到";
                     }
                     await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
+                    e.Cancel = true;
                     return;
                 }
             } else if (e.Content.Text.StartsWith("清理未发言")) {
@@ -349,6 +348,7 @@ namespace Byboy.SignPlugin
                     int count = DbUtil.DeleteSignByLastSentTime(e.GroupUsername,DateTime.Now.AddDays(-1 * int.Parse(e.Content.Text[6..].Trim())));
                     result = string.Format($@"@{e.Sender.Nickname}成功删除{0}条数据",count);
                     await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
+                    e.Cancel = true;
                     return;
                 }
             } else if (e.Content.Text.StartsWith("清理未签到")) {
@@ -357,6 +357,7 @@ namespace Byboy.SignPlugin
                     var count = DbUtil.DeleteSignByLastSignTime(e.GroupUsername,DateTime.Now.AddDays(-1 * int.Parse(e.Content.Text[6..].Trim())));
                     result = string.Format($@"@{e.Sender.Nickname}成功删除{0}条数据",count);
                     await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
+                    e.Cancel = true;
                     return;
                 }
             } else if (e.Content.Text.Trim() == "查看签到设置") {
@@ -408,6 +409,7 @@ namespace Byboy.SignPlugin
                         result = sb.ToString();
                     }
                     await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
+                    e.Cancel = true;
                     return;
                 }
             } else if (e.Content.Text.Trim().StartsWith("签到设置")) {
@@ -550,6 +552,7 @@ namespace Byboy.SignPlugin
                                     result = $@"@{e.Sender.Nickname}存在未知指令，请先发送【查看签到设置】";
                                     await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
                                 }
+                                e.Cancel = true;
                                 return;
                             }
                             m = m.NextMatch();
@@ -558,12 +561,14 @@ namespace Byboy.SignPlugin
                         result = $@"@{e.Sender.Nickname}设置成功";
                     }
                     await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
+                    e.Cancel = true;
                     return;
                 }
             }
 
-            if (!config.Status)
+            if (!config.Status) {
                 return;
+            }
 
             DateTime now = DateTime.Now;
             DateTime today = new(now.Year,now.Month,now.Day);
@@ -592,6 +597,7 @@ namespace Byboy.SignPlugin
                 {
                     var result = ReplaceParams(config.Hellos[level],config,sign,null);
                     await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
+                    e.Cancel = true;
                 }
             }
 
@@ -599,6 +605,7 @@ namespace Byboy.SignPlugin
             if (config.FirstSign && first) {
                 var result = Sign(e,config,now,today,sign);
                 await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
+                e.Cancel = true;
             } else if (Regex.IsMatch(e.Content.Text.Trim(),config.Cmd,RegexOptions.IgnoreCase))//签到
               {
                 sign.Nickname = e.Sender.Nickname;
@@ -606,6 +613,7 @@ namespace Byboy.SignPlugin
                 {
                     var msg = ReplaceParams(config.Lang1,config,sign,null);
                     await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + msg } });
+                    e.Cancel = true;
                 } else if (sign.LastSignTime.HasValue &&//重复签到检查
                       sign.LastSignTime.Value.Year == now.Year &&
                       sign.LastSignTime.Value.Month == now.Month &&
@@ -617,14 +625,17 @@ namespace Byboy.SignPlugin
                         var msg = ReplaceParams(config.Lang2,config,sign);//替换群名变量
                         msg = msg.Replace("[扣除积分]",sExt);//替换[扣除积分]变量
                         await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + msg } });
+                        e.Cancel = true;
                     } else {
                         var msg = ReplaceParams(config.Lang4,config,sign);
                         await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + msg } });
+                        e.Cancel = true;
                     }
                 } else//开始签到了
                   {
                     var result = Sign(e,config,now,today,sign);
                     await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
+                    e.Cancel = true;
                 }
 
             }
@@ -634,6 +645,7 @@ namespace Byboy.SignPlugin
             {
                 var msg = ReplaceParams(config.Lang6,config,sign);
                 await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + msg } });
+                e.Cancel = true;
             } else if (e.Content.Text.Trim().Equals(config.Lang7))//签到等级
               {
                 StringBuilder sb = new StringBuilder();
@@ -647,30 +659,37 @@ namespace Byboy.SignPlugin
                     sb.AppendFormat("模板错误，请联系群主、管理员修改");
                 var msg = ReplaceParams(sb.ToString(),config,sign);
                 await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + msg } });
+                e.Cancel = true;
             } else if (e.Content.Text.Trim().Equals(config.Lang9))//签到总榜
               {
                 var result = ReplaceFor(config.Lang10,DbUtil.GetSignBySignCount(e.GroupUsername,config.Top),config);
                 await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
+                e.Cancel = true;
             } else if (e.Content.Text.Trim().Equals(config.Lang11))//签到月榜
               {
                 var result = ReplaceFor(config.Lang12,DbUtil.GetSignByMonthSignCount(e.GroupUsername,config.Top,new DateTime(now.Year,now.Month,1)),config);
                 await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
+                e.Cancel = true;
             } else if (e.Content.Text.Trim().Equals(config.Lang13))//今日签到
               {
                 var result = ReplaceFor(config.Lang14,DbUtil.GetSignByLastSignTime(e.GroupUsername,config.Top,today),config);
                 await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
+                e.Cancel = true;
             } else if (e.Content.Text.Trim().Equals(config.Lang15))//发言总榜
               {
                 var result = ReplaceFor(config.Lang16,DbUtil.GetSignBySentCount(e.GroupUsername,config.Top),config);
                 await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
+                e.Cancel = true;
             } else if (e.Content.Text.Trim().Equals(config.Lang17))//发言月榜
               {
                 var result = ReplaceFor(config.Lang18,DbUtil.GetSignByMonthSentCount(e.GroupUsername,config.Top,new DateTime(now.Year,now.Month,1)),config);
                 await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + result } });
+                e.Cancel = true;
             } else if (e.Content.Text.Trim().Equals(config.Lang19))//签到信息
               {
                 var msg = ReplaceParams(config.Lang20,config,sign);
                 await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + msg } });
+                e.Cancel = true;
             }
 
             if (config.Random > 0 && r.Next(1000) < config.Random)//中奖了。。。
@@ -680,6 +699,7 @@ namespace Byboy.SignPlugin
                 string msg = config.Lang21[lExt % config.Lang21.Count].Replace("[基本积分]",lExt.ToString() + StaticData.RobotConfig.JfNames.ExtcreditsName(config.RndType));
                 msg = ReplaceParams(msg,config,sign);
                 await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = $" @{e.Sender.Nickname}" + msg } });
+                e.Cancel = true;
             }
         }
 

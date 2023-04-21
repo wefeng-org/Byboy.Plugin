@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="MG.Protobuf">
+      <HintPath>..\..\wxssc\CpfWeChat\bin\Debug\net6.0\MG.Protobuf.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MG.WeCode">
+      <HintPath>..\..\wxssc\CpfWeChat\bin\Debug\net6.0\MG.WeCode.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Plugin">
+      <HintPath>..\..\wxssc\CpfWeChat\bin\Debug\net6.0\Plugin.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="SqlSugar">
+      <HintPath>..\..\wxssc\CpfWeChat\bin\Debug\net6.0\SqlSugar.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="SuperWx">
+      <HintPath>..\..\wxssc\CpfWeChat\bin\Debug\net6.0\SuperWx.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Net.Http.Json">
+      <HintPath>..\..\wxssc\CpfWeChat\bin\Debug\net6.0\System.Net.Http.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

@@ -5,7 +5,9 @@ VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Byboy.SignPlugin", "Byboy.SignPlugin\Byboy.SignPlugin.csproj", "{7FFF2D57-D3A4-47AA-AB51-A9BBC1D2D2B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Byboy.SingleFriend", "Byboy.SingleFriend\Byboy.SingleFriend.csproj", "{6CCB9551-BE18-4907-941D-19AAB853F569}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Byboy.SingleFriend", "Byboy.SingleFriend\Byboy.SingleFriend.csproj", "{6CCB9551-BE18-4907-941D-19AAB853F569}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MG.TimerAddGroup", "MG.TimerAddGroup\MG.TimerAddGroup.csproj", "{DDB3895D-328E-4D3C-BBF5-90015F0DEF3D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{6CCB9551-BE18-4907-941D-19AAB853F569}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6CCB9551-BE18-4907-941D-19AAB853F569}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6CCB9551-BE18-4907-941D-19AAB853F569}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDB3895D-328E-4D3C-BBF5-90015F0DEF3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDB3895D-328E-4D3C-BBF5-90015F0DEF3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDB3895D-328E-4D3C-BBF5-90015F0DEF3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDB3895D-328E-4D3C-BBF5-90015F0DEF3D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
