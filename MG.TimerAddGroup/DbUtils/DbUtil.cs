@@ -1,3 +1,4 @@
+using Plugin;
 using SqlSugar;
 
 namespace MG.TimerAddGroup.DbUtils
@@ -9,6 +10,12 @@ namespace MG.TimerAddGroup.DbUtils
             DbType = DbType.Sqlite,//数据库类型
             InitKeyType = InitKeyType.Attribute,
             IsAutoCloseConnection = true //不设成true要手动close
-        });
+        },
+           db => {
+           db.Aop.OnLogExecuting = (sql,pars) => {
+               Eve.OnLog(null!,sql);
+           };
+
+          });
     }
 }

@@ -47,6 +47,26 @@ namespace MG.TimerAddGroup.DbUtils
         /// </summary>
         [SugarColumn(IsNullable = true)]
         public DateTime? AgreeTime { get; set; }
-        
+    }
+    /// <summary>
+    /// 加群之后的操作
+    /// </summary>
+    [SugarTable("AddGroupAfter")]
+    public class AddGroupAfter
+    {
+        /// <summary>
+        /// id
+        /// </summary>
+        [SugarColumn(IsPrimaryKey = true, IsIdentity = true)]
+        public int Id { get; set; }
+        /// <summary>
+        /// 群号
+        /// </summary>
+        [SugarColumn(Length = 50)]
+        public string GroupUsername { get; set; }
+        /// <summary>
+        /// 是否已设置不提醒
+        /// </summary>
+        public bool IsNoRemind { get; set; } = false;
     }
 }

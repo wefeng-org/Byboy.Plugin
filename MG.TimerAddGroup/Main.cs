@@ -11,18 +11,34 @@ namespace MG.TimerAddGroup
         public override string Description => "他会定时的加群";
         public override string Name => "定时加群";
         public override string Version => "v1.0";
-
+        public DateTime LastGetList { get; set; } = DateTime.MinValue;
+        public List<AddGroupAfter> addGroupAfters = new List<AddGroupAfter>();
         private Timer timer;
         public override void Initialize()
         {
             DbUtil.Db.DbMaintenance.CreateDatabase();
             // 初始化表
-            DbUtil.Db.CodeFirst.InitTables(typeof(AddGroup));
+            DbUtil.Db.CodeFirst.InitTables(typeof(AddGroup),typeof(AddGroupAfter));
             timer = new Timer(TimerEnc,null!,1000,-1);
             ReceiveSystemMessage += Main_ReceiveSystemMessage;
-             
-            
+            ReceiveGroupMessage += Main_ReceiveGroupMessage;
             base.Initialize();
+        }
+
+        private async Task Main_ReceiveGroupMessage(SuperWx.WXUserLogin sender,Plugin.EveEntitys.ReceiveGroupMessageArgs e)
+        {
+            if (addGroupAfters.Where(t => t.GroupUsername == e.GroupUsername).Count() != 1) {
+                var t = await DbUtil.Db.Queryable<AddGroupAfter>().Where(it => it.GroupUsername == e.GroupUsername).FirstAsync();
+                if (t == null) {
+                    await ModChatRoomNotify(sender.OriginalId,e.GroupUsername,0);
+                    await ModChatRoomMsgBox(sender.OriginalId,e.GroupUsername,0);
+                    t = new AddGroupAfter { GroupUsername = e.GroupUsername,IsNoRemind = true };
+                    await DbUtil.Db.Insertable(t).ExecuteCommandIdentityIntoEntityAsync();
+                    addGroupAfters.Add(t);
+                } else {
+                    addGroupAfters.Add(t);
+                }
+            }
         }
 
         private async Task Main_ReceiveSystemMessage(SuperWx.WXUserLogin sender,Plugin.EveEntitys.ReceiveSystemMessageArgs e)
@@ -56,8 +72,9 @@ namespace MG.TimerAddGroup
                 return;
             }
             try {
-                if (groupList == null) {
+                if (groupList == null || LastGetList.Date < DateTime.Now.Date) {
                     groupList = HttpUtil.Get<List<Group>>("http://120.26.62.16:7050/api/ELE/GetMTQRCode");
+                    LastGetList = DateTime.Now;
                 }
                 //请求http://120.26.62.16:7050/api/ELE/GetMTQRCode接口获取所有群的信息
                 foreach (var group in groupList) {
@@ -67,6 +84,10 @@ namespace MG.TimerAddGroup
                         .Count();
                     //如果没有添加过群
                     if (addGroup == 0) {
+                        var random = new Random();
+                        var waitTime = random.Next(20,40);
+                        OnLog($"等待{waitTime}秒");
+                        Thread.Sleep(waitTime * 1000);
                         //添加群
                         foreach (var user in StaticData.users) {
                             if (user.IsLogin == false) {
@@ -74,15 +95,10 @@ namespace MG.TimerAddGroup
                             }
                             //查询当前人最近加群的时间,如果大于1小时就可以添加群
                             var userAddGroup = DbUtil.Db.Queryable<AddGroup>()
-                                .Where(it => it.AddUsername == user.Username)
-                                .OrderBy(it => it.AddTime,OrderByType.Desc)
+                                .Where(it => it.AddUsername == user.Username).OrderBy(it => it.AddTime,OrderByType.Desc)
                                 .First();
-                            if (userAddGroup == null || (DateTime.Now - userAddGroup.AddTime).TotalHours > 1) {
-                                //随机等待10~20分钟,如果是DEBUG则不等待
-                                var random = new Random();
-                                var waitTime = random.Next(10,20);
-                                OnLog($"等待{waitTime}分钟");
-                                Thread.Sleep(waitTime * 1000);
+
+                            if (userAddGroup == null ||  (DateTime.Now - userAddGroup.AddTime).TotalHours > 1) {
                                 OnLog($"即将使用{user.OriginalId}加群");
                                 var t = await GetA8Key(user.OriginalId,group.groupqrcodevalue,4);
                                 if (t == null) {
@@ -114,8 +130,8 @@ namespace MG.TimerAddGroup
             } finally {
                 try {
                     timer.Change(1000,-1);
-                } catch (global::System.Exception) {
-
+                } catch (global::System.Exception ex) {
+                    OnLog($"定时器已经释放{ex}");
                 }
             }
         }
