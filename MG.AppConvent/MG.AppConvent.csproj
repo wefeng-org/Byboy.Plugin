@@ -8,16 +8,16 @@
 
   <ItemGroup>
     <Reference Include="MG.Protobuf">
-      <HintPath>E:\Code\wxssc\CpfWeChat\bin\Debug\net6.0\MG.Protobuf.dll</HintPath>
+      <HintPath>D:\workspase\wxssc\CpfWeChat\bin\Debug\net6.0\MG.Protobuf.dll</HintPath>
     </Reference>
     <Reference Include="MG.WeCode">
-      <HintPath>E:\Code\wxssc\CpfWeChat\bin\Debug\net6.0\MG.WeCode.dll</HintPath>
+      <HintPath>D:\workspase\wxssc\CpfWeChat\bin\Debug\net6.0\MG.WeCode.dll</HintPath>
     </Reference>
     <Reference Include="Plugin">
-      <HintPath>E:\Code\wxssc\CpfWeChat\bin\Debug\net6.0\Plugin.dll</HintPath>
+      <HintPath>D:\workspase\wxssc\CpfWeChat\bin\Debug\net6.0\Plugin.dll</HintPath>
     </Reference>
     <Reference Include="SuperWx">
-      <HintPath>E:\Code\wxssc\CpfWeChat\bin\Debug\net6.0\SuperWx.dll</HintPath>
+      <HintPath>D:\workspase\wxssc\CpfWeChat\bin\Debug\net6.0\SuperWx.dll</HintPath>
     </Reference>
   </ItemGroup>
 

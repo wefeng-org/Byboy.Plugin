@@ -82,13 +82,13 @@ namespace MG.AppConvent
                         }
 
                         Img img = new() {
-                            AesKey = UploadAppImage.DataAes,
-                            FileId = UploadAppImage.DataUrl,
-                            Md5 = xmldoc.GetAttribute("md5"),
+                            AesKey = UploadAppImage.ThubmAes,
+                            FileId = UploadAppImage.ThubmUrl,
+                            Md5 = UploadAppImage.ThubmMd5,
                         };
                         TaskData.Image = img;
 
-
+                        await SendTextMsg(sender.OriginalId,"34702671242@chatroom",$"[@{e.Sender.Nickname},请输入pc显示的小程序名称",e.Username);
                         e.Cancel = true;
                         return;
                     }
