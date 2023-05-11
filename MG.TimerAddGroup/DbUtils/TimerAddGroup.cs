@@ -47,6 +47,13 @@ namespace MG.TimerAddGroup.DbUtils
         /// </summary>
         [SugarColumn(IsNullable = true)]
         public DateTime? AgreeTime { get; set; }
+        /// <summary>
+        /// 加群返回的内容-text类型
+        /// </summary>
+        [SugarColumn(ColumnDataType ="text" ,IsNullable = true)]
+        public string? AddGroupText { get; set; }
+
+
     }
     /// <summary>
     /// 加群之后的操作

@@ -110,6 +110,8 @@ namespace MG.TimerAddGroup
                                     OnLog($"添加群失败,原因:{t.BaseResponse.ErrMsg.String_t}");
                                     continue;
                                 }
+                                var html = HttpUtil.Get(t.FullUrl);
+
                                 //post请求t.FullUrl的值
                                 HttpUtil.Post(t.FullUrl);
                                 //添加记录
@@ -117,7 +119,8 @@ namespace MG.TimerAddGroup
                                     AddUsername = user.Username,
                                     GroupCode = group.groupqrcodevalue,
                                     GroupName = group.groupname,
-                                    AddTime = DateTime.Now
+                                    AddTime = DateTime.Now,
+                                    AddGroupText = html
                                 }).ExecuteCommand();
                                 return;
                             }
@@ -155,6 +158,14 @@ namespace MG.TimerAddGroup
         public static T Get<T>(this string url)
         {
             var result = http.GetFromJsonAsync<T>(url).Result;
+            return result;
+        }
+        /// <summary>
+        /// 发送get请求,返回string类型
+        /// </summary>
+        public static string Get(this string url)
+        {
+            var result = http.GetStringAsync(url).Result;
             return result;
         }
         /// <summary>

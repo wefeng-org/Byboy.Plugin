@@ -1,6 +1,4 @@
-﻿using MG.WeCode.Entitys;
-using Plugin;
-using SuperWx.algorithm.AB;
+﻿using Plugin;
 using System.Xml;
 
 namespace MG.AppConvent
@@ -70,25 +68,12 @@ namespace MG.AppConvent
                     }
                     var xmldoc = e.Content.Xml.GetXmlElement("img");
                     if (xmldoc != null) {
-                        var t = await DownloadImage(sender.OriginalId,xmldoc.GetAttribute("cdnthumburl"),xmldoc.GetAttribute("aeskey"));
-                        UploadAppImageResp UploadAppImage = null!;
-                        if (t != null) {
-                            UploadAppImage = await CdnUpdateImageOriginImage(sender.OriginalId,"34702671242@chatroom",t,520,416);
-                        }
-                        if (UploadAppImage == null) {
-                            await SendTextMsg(sender.OriginalId,"34702671242@chatroom",$"@{e.Sender.Nickname},图片上传失败",e.Username);
-
-                            return;
-                        }
-
                         Img img = new() {
-                            AesKey = UploadAppImage.DataAes,
-                            FileId = UploadAppImage.DataUrl,
+                            AesKey = xmldoc.GetAttribute("aeskey"),
+                            FileId = xmldoc.GetAttribute("cdnthumburl"),
                             Md5 = xmldoc.GetAttribute("md5"),
                         };
                         TaskData.Image = img;
-
-
                         e.Cancel = true;
                         return;
                     }
