@@ -6,7 +6,7 @@ namespace MG.TimerAddGroup.DbUtils
     /// 添加群记录
     /// </summary>
     [SugarTable("AddGroup")]
-    internal class AddGroup
+    public class AddGroup
     {
         /// <summary>
         /// id
@@ -52,6 +52,8 @@ namespace MG.TimerAddGroup.DbUtils
         /// </summary>
         [SugarColumn(ColumnDataType ="text" ,IsNullable = true)]
         public string? AddGroupText { get; set; }
+        [SugarColumn(ColumnDataType = "text",IsNullable = true)]
+        public string? GroupA8keyUrl { get; set; }
 
 
     }
@@ -75,5 +77,9 @@ namespace MG.TimerAddGroup.DbUtils
         /// 是否已设置不提醒
         /// </summary>
         public bool IsNoRemind { get; set; } = false;
+        /// <summary>
+        /// 是否添加到通信录
+        /// </summary>
+        public bool IsCont { get; set; }
     }
 }

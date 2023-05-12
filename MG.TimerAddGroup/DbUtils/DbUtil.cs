@@ -13,7 +13,7 @@ namespace MG.TimerAddGroup.DbUtils
         },
            db => {
            db.Aop.OnLogExecuting = (sql,pars) => {
-               Eve.OnLog(null!,sql);
+               //Eve.OnLog(null!,sql);
            };
 
           });

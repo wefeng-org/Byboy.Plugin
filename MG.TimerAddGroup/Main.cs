@@ -13,18 +13,25 @@ namespace MG.TimerAddGroup
         public override string Version => "v1.0";
         public DateTime LastGetList { get; set; } = DateTime.MinValue;
         public List<AddGroupAfter> addGroupAfters = new List<AddGroupAfter>();
+        public List<AddGroup> addGroups = new List<AddGroup>();
+
         private Timer timer;
         public override void Initialize()
         {
-            DbUtil.Db.DbMaintenance.CreateDatabase();
-            // 初始化表
-            DbUtil.Db.CodeFirst.InitTables(typeof(AddGroup),typeof(AddGroupAfter));
+
+            Init();
             timer = new Timer(TimerEnc,null!,1000,-1);
             ReceiveSystemMessage += Main_ReceiveSystemMessage;
             ReceiveGroupMessage += Main_ReceiveGroupMessage;
             base.Initialize();
         }
-
+        void Init()
+        {
+            var t = DbUtil.Db.Queryable<AddGroupAfter>().ToList();
+            addGroupAfters.AddRange(t);
+            var t1 = DbUtil.Db.Queryable<AddGroup>().ToList();
+            addGroups.AddRange(t1);
+        }
         private async Task Main_ReceiveGroupMessage(SuperWx.WXUserLogin sender,Plugin.EveEntitys.ReceiveGroupMessageArgs e)
         {
             if (addGroupAfters.Where(t => t.GroupUsername == e.GroupUsername).Count() != 1) {
@@ -39,6 +46,17 @@ namespace MG.TimerAddGroup
                     addGroupAfters.Add(t);
                 }
             }
+            if (addGroups.Where(t => t.GroupUsername == e.GroupUsername).Count() != 1) {
+                var t1 = addGroups.FirstOrDefault(t => t.GroupName.Contains(e.Group.Name));
+                if (t1 == null) {
+                    t1 = await DbUtil.Db.Queryable<AddGroup>().Where(t => t.GroupName.Contains(e.Group.Name)).FirstAsync();
+                }
+                t1.IsAdd = true;
+                t1.GroupUsername = e.GroupUsername;
+                await DbUtil.Db.Updateable(t1).ExecuteCommandHasChangeAsync();
+                addGroups.Add(t1);
+            }
+
         }
 
         private async Task Main_ReceiveSystemMessage(SuperWx.WXUserLogin sender,Plugin.EveEntitys.ReceiveSystemMessageArgs e)
@@ -58,13 +76,22 @@ namespace MG.TimerAddGroup
 
         public override void Install()
         {
+            //初始化数据库
+            DbUtil.Db.DbMaintenance.CreateDatabase();
+            // 初始化表
+            DbUtil.Db.CodeFirst.InitTables(typeof(AddGroup),typeof(AddGroupAfter));
             base.Install();
         }
         List<Group> groupList = HttpUtil.Get<List<Group>>("http://120.26.62.16:7050/api/ELE/GetMTQRCode");
+        static bool isFrist = true;
 
         private async void TimerEnc(object o)
         {
             timer.Change(-1,-1);
+            if (isFrist) {
+                isFrist = false;
+                await Task.Delay(100 * 1000);
+            }
             //判断当前时间是否在早上8点到晚上8点之间,如果不在就不执行
             if (DateTime.Now.Hour < 8 || DateTime.Now.Hour > 20) {
                 timer.Change(1000,-1);
@@ -79,15 +106,14 @@ namespace MG.TimerAddGroup
                 //请求http://120.26.62.16:7050/api/ELE/GetMTQRCode接口获取所有群的信息
                 foreach (var group in groupList) {
                     //查询当前群是否已经添加过
+                    OnLog($"即将查询{group.groupname}是否加过");
                     var addGroup = DbUtil.Db.Queryable<AddGroup>()
                         .Where(it => it.GroupCode == group.groupqrcodevalue)
                         .Count();
                     //如果没有添加过群
                     if (addGroup == 0) {
                         var random = new Random();
-                        var waitTime = random.Next(20,40);
-                        OnLog($"等待{waitTime}秒");
-                        Thread.Sleep(waitTime * 1000);
+                        var waitTime = random.Next(30,60);
                         //添加群
                         foreach (var user in StaticData.users) {
                             if (user.IsLogin == false) {
@@ -98,7 +124,9 @@ namespace MG.TimerAddGroup
                                 .Where(it => it.AddUsername == user.Username).OrderBy(it => it.AddTime,OrderByType.Desc)
                                 .First();
 
-                            if (userAddGroup == null ||  (DateTime.Now - userAddGroup.AddTime).TotalHours > 1) {
+                            if (userAddGroup == null || (DateTime.Now - userAddGroup.AddTime).TotalHours > 1) {
+                                OnLog($"等待{waitTime}秒");
+                                await Task.Delay(waitTime * 1000);
                                 OnLog($"即将使用{user.OriginalId}加群");
                                 var t = await GetA8Key(user.OriginalId,group.groupqrcodevalue,4);
                                 if (t == null) {
@@ -110,16 +138,29 @@ namespace MG.TimerAddGroup
                                     OnLog($"添加群失败,原因:{t.BaseResponse.ErrMsg.String_t}");
                                     continue;
                                 }
+                                OnLog($"加群的url为{t.FullUrl}");
                                 var html = HttpUtil.Get(t.FullUrl);
 
                                 //post请求t.FullUrl的值
-                                HttpUtil.Post(t.FullUrl);
+                                var t1 = HttpUtil.Post(t.FullUrl);
+                                OnLog("第一次返回" + t1);
+                                await Task.Delay(5 * 1000);
+                                var t2 = HttpUtil.Post(t.FullUrl);
+                                OnLog("第二次返回" + t2);
+                                var headIndex = t2.IndexOf("weixin://jump/mainframe/");
+                                if (headIndex == -1) { OnLog("添加群聊失败,原因:无返回群号"); continue; }
+                                var head = t2[(headIndex + 24)..];
+                                var breadIndex = head.IndexOf("\"");
+                                var groupUsername = head[..breadIndex];
                                 //添加记录
                                 DbUtil.Db.Insertable(new AddGroup() {
+                                    GroupA8keyUrl = t.FullUrl,
                                     AddUsername = user.Username,
                                     GroupCode = group.groupqrcodevalue,
                                     GroupName = group.groupname,
                                     AddTime = DateTime.Now,
+                                    IsAdd = true,
+                                    GroupUsername = groupUsername,
                                     AddGroupText = html
                                 }).ExecuteCommand();
                                 return;
@@ -171,9 +212,9 @@ namespace MG.TimerAddGroup
         /// <summary>
         /// 发送post请求,不需要参数和返回值
         /// </summary>
-        public static void Post(this string url)
+        public static string Post(this string url)
         {
-            http.PostAsync(url,null).Wait();
+            return http.PostAsync(url,null).Result.Content.ReadAsStringAsync().Result;
         }
     }
 
