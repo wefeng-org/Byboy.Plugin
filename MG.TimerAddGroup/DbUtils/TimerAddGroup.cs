@@ -54,6 +54,8 @@ namespace MG.TimerAddGroup.DbUtils
         public string? AddGroupText { get; set; }
         [SugarColumn(ColumnDataType = "text",IsNullable = true)]
         public string? GroupA8keyUrl { get; set; }
+        [SugarColumn(ColumnName = "last_qrcode")]
+        public DateTime LastQrCode { get; set; } = DateTime.MinValue;
 
 
     }
