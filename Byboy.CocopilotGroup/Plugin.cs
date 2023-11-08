@@ -49,13 +49,39 @@ namespace Byboy.CocopilotGroup
 
         private async Task Plugin_ReceiveFriendMessage(WXUserLogin sender,ReceiveFriendMessageArgs e)
         {
-            if (e.Content.Text.Contains("564312978")) {
-                var group = await DbUtil.Db.Queryable<TBGroupDetail>().Where(t => t.GroupCount < 500).OrderBy(t => t.Id).FirstAsync();
-                OnLog(JsonSerializer.Serialize(group));
-                await SendTextMsg(sender.OriginalId,new List<MultiMessageArgs> { new() { Username = e.Username,Type = 0,Content = $"欢迎你,{e.Sender.Nickname},马上邀请你进群" } });
-                await Task.Delay(1000 * 3);
-                var tt = await InviteGroupMemberRequest(sender.OriginalId,group.GroupUsername,new List<string> { e.Username });
-                OnLog(JsonSerializer.Serialize(tt));
+            //if (e.Content.Text.Contains("564312978")) {
+            //    var group = await DbUtil.Db.Queryable<TBGroupDetail>().Where(t => t.GroupCount < 500).OrderBy(t => t.Id).FirstAsync();
+            //    OnLog(JsonSerializer.Serialize(group));
+            //    await SendTextMsg(sender.OriginalId,new List<MultiMessageArgs> { new() { Username = e.Username,Type = 0,Content = $"欢迎你,{e.Sender.Nickname},马上邀请你进群" } });
+            //    await Task.Delay(1000 * 3);
+            //    var tt = await InviteGroupMemberRequest(sender.OriginalId,group.GroupUsername,new List<string> { e.Username });
+            //    OnLog(JsonSerializer.Serialize(tt));
+            //}
+
+            if (IsRobotAdmins(e.Username) || e.Username == "wxid_nrp71pjkl4ws22") {
+                if (e.Content.Text.Contains("开车")) {
+                    var catName = e.Content.Text;
+                    catName = catName.Replace("开车","");
+                    catName = catName.Replace(" ","");
+                    //判断是要开的车是否在数据库中
+                    var car = await DbUtil.Db.Queryable<TBCar>().Where(t => t.CatName == catName).FirstAsync();
+                    //如果不在,则添加到数据库
+                    if (car == null) {
+                        car = new TBCar() { CatName = catName, CatId = DateTimeOffset.Now.ToUnixTimeMilliseconds().ToString(), IsOpen = false, Uuid = new() };
+                        await DbUtil.Db.Insertable(car).ExecuteCommandAsync();
+                        //发送消息这个人,回复开车成功
+                        await SendTextMsg(sender.OriginalId,new List<MultiMessageArgs> { new() { Username = e.Username,Type = 0,Content = $"开车成功,车名:{catName}" } });
+                        //获取数据库中的群组
+                        var groups = await DbUtil.Db.Queryable<TBGroupDetail>().ToListAsync();
+                        foreach (var item in groups) {
+                            //发送消息到群组,开车了
+                            await SendTextMsg(sender.OriginalId,new List<MultiMessageArgs> { new() { Username = item.GroupUsername,Type = 0,Content = $"@全体人员 开车了,车名{catName}",AtUsernames = "notify@all" } });
+                        }
+                    } else {
+                        //给这个人发送消息,车已在数据库了
+                        await SendTextMsg(sender.OriginalId,new List<MultiMessageArgs> { new() { Username = e.Username,Type = 0,Content = $"车已在数据库了,车名:{catName}" } });
+                    }
+                }
             }
         }
 
@@ -98,6 +124,8 @@ namespace Byboy.CocopilotGroup
                 }
                 await SendTextMsg(sender.OriginalId,new List<MultiMessageArgs> { new() { Username = e.GroupUsername,Type = 0,Content = text } });
             }
+
+
 
             if (e.Content.MsgType == MessageType.NORMALIM && (e.Content.Text.Contains("帮助") || e.Content.Text.Contains("怎么办") || e.Content.Text.Contains("啥原因"))) {
                 await SendTextMsg(sender.OriginalId,new List<MultiMessageArgs> { new() { Username = e.GroupUsername,Type = 0,Content = "帮助文档:\r\nhttps://www.yuque.com/ningmengguorou/lll50a/ti3yq1v4khsrsyfd" } });
