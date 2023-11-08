@@ -76,8 +76,8 @@ namespace Byboy.SignPlugin.DbUtils
         /// <summary>
         /// 带有缓存机制的
         /// </summary>
-        /// <param name="ExternalId"></param>
-        /// <param name="QQ"></param>
+        /// <param name="groupUsername"></param>
+        /// <param name="username"></param>
         /// <returns></returns>
         internal static ClusterSign GetClusterSign(string groupUsername,string username)
         {

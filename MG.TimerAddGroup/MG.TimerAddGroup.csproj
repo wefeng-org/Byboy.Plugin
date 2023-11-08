@@ -8,27 +8,27 @@
 
   <ItemGroup>
     <Reference Include="MG.Protobuf">
-      <HintPath>E:\Code\wxssc\CpfWeChat\bin\Debug\net6.0\MG.Protobuf.dll</HintPath>
+      <HintPath>D:\workspase\wxssc\WeFeng.Console\bin\Debug\net6.0\MG.Protobuf.dll</HintPath>
       <CopyLocal>False</CopyLocal>
     </Reference>
     <Reference Include="MG.WeCode">
-      <HintPath>E:\Code\wxssc\CpfWeChat\bin\Debug\net6.0\MG.WeCode.dll</HintPath>
+      <HintPath>D:\workspase\wxssc\WeFeng.Console\bin\Debug\net6.0\MG.WeCode.dll</HintPath>
       <CopyLocal>False</CopyLocal>
     </Reference>
     <Reference Include="Plugin">
-      <HintPath>E:\Code\wxssc\CpfWeChat\bin\Debug\net6.0\Plugin.dll</HintPath>
+      <HintPath>D:\workspase\wxssc\WeFeng.Console\bin\Debug\net6.0\Plugin.dll</HintPath>
       <CopyLocal>False</CopyLocal>
     </Reference>
     <Reference Include="SqlSugar">
-      <HintPath>E:\Code\wxssc\CpfWeChat\bin\Debug\net6.0\SqlSugar.dll</HintPath>
+      <HintPath>D:\workspase\wxssc\WeFeng.Console\bin\Debug\net6.0\SqlSugar.dll</HintPath>
       <CopyLocal>False</CopyLocal>
     </Reference>
     <Reference Include="SuperWx">
-      <HintPath>E:\Code\wxssc\CpfWeChat\bin\Debug\net6.0\SuperWx.dll</HintPath>
+      <HintPath>D:\workspase\wxssc\WeFeng.Console\bin\Debug\net6.0\SuperWx.dll</HintPath>
       <CopyLocal>False</CopyLocal>
     </Reference>
     <Reference Include="wxssc">
-      <HintPath>E:\Code\wxssc\CpfWeChat\bin\Debug\net6.0\wxssc.dll</HintPath>
+      <HintPath>D:\workspase\wxssc\WeFeng.Console\bin\Debug\net6.0\wxssc.dll</HintPath>
       <CopyLocal>False</CopyLocal>
     </Reference>
   </ItemGroup>
