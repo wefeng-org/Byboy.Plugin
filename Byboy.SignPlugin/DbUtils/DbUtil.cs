@@ -91,7 +91,7 @@ namespace Byboy.SignPlugin.DbUtils
                     var dt = DateTime.Now.AddHours(-1);
                     signs.RemoveAll(t => t.LastSentTime < dt);
                 }
-                return sign;
+                return sign!;
             } catch (Exception ex) {
             }
             return null!;

@@ -1,9 +1,8 @@
 ﻿using SqlSugar;
-using System.ComponentModel.DataAnnotations;
 
 namespace Byboy.SignPlugin.DbUtils
 {
-   
+
     /// <summary>
     /// 签到记录
     /// </summary>
@@ -16,18 +15,18 @@ namespace Byboy.SignPlugin.DbUtils
         /// <summary>
         /// 群号码
         /// </summary>
-        public string GroupUsername { get; set; }
+        public string GroupUsername { get; set; } = string.Empty;
 
         /// <summary>
         /// username
         /// </summary>
-        public string Username { get; set; }
+        public string Username { get; set; } = string.Empty;
 
         /// <summary>
         /// nickname
         /// </summary>
         [SugarColumn(IsNullable = true)]
-        public string Nickname { get; set; }
+        public string Nickname { get; set; } = string.Empty;
         /// <summary>
         /// 总签到次数
         /// </summary>
@@ -45,7 +44,7 @@ namespace Byboy.SignPlugin.DbUtils
         /// <summary>
         /// 上次签到时间
         /// </summary>
-        [SugarColumn(IsNullable =true)]
+        [SugarColumn(IsNullable = true)]
         public DateTime? LastSignTime { get; set; }
 
         /// <summary>
@@ -115,7 +114,7 @@ namespace Byboy.SignPlugin.DbUtils
             this.BeginExtCredits = 10;
             this.RepeatMin = 1;
             this.RepeatMax = 2;
-            this.SignTime = ("0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23").Split(",").Select(t=>int.Parse(t)).ToList();
+            this.SignTime = ("0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23").Split(",").Select(t => int.Parse(t)).ToList();
             this.Top = 10;
             this.Random = 10;
             this.RndMin = 10;
@@ -192,7 +191,7 @@ namespace Byboy.SignPlugin.DbUtils
 
             this.Lang21 = new List<string>() { "今天运气真好，捡到：[基本积分]" };
         }
-        
+
         /// <summary>
         /// 状态（true，允许签到）
         /// </summary>
@@ -201,7 +200,7 @@ namespace Byboy.SignPlugin.DbUtils
         /// <summary>
         /// 允许签到的群
         /// </summary>
-        public List<uint> ExternalIds { get; set; }
+        public List<string> ExternalIds { get; set; } = new List<string>();
 
         /// <summary>
         /// 签到天数

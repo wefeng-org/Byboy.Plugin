@@ -88,204 +88,204 @@ namespace Byboy.SignPlugin
                 var config = cc.ConfigObj;
                 switch (m.Groups[1].Value) {
                     case "开启签到": {
-                        if (config.Status)
-                            result = @"签到已处于开启状态！";
-                        else {
-                            config.Status = true;
-                            cc.SaveClusterConfig();
-                            result = @"签到开启成功！";
-                        }
-                    }
-                    break;
-                    case "关闭签到": {
-                        config.Status = false;
-                        cc.SaveClusterConfig();
-                        result = @"签到关闭成功！";
-                    }
-                    break;
-                    case "查看签到设置": {
-                        StringBuilder sb = new(string.Format(@"签到设置 {0}
-",ExternalId));
-                        sb.AppendFormat("自动签到={0}\r\n",config.FirstSign ? "开" : "关");
-                        sb.AppendFormat("签到指令={0}\r\n",config.Cmd);
-                        sb.AppendFormat("签到天数分级={0}\r\n",string.Join(",",config.Days));
-                        sb.AppendFormat("签到称号分级={0}\r\n",string.Join(",",config.Levels));
-                        sb.AppendFormat("首次聊天欢迎词={0}\r\n",string.Join("\r\n",config.Hellos));
-                        sb.AppendFormat("签到时段={0}\r\n",string.Join(",",config.SignTime));
-                        sb.AppendFormat("签到积分类型={0}\r\n",StaticData.RobotConfig.JfNames.ExtcreditsName(config.Type));
-                        sb.AppendFormat("签到积分范围={0}-{1}\r\n",config.Min,config.Max);
-                        sb.AppendFormat("连续签到奖励={0}\r\n",config.Add);
-                        sb.AppendFormat("前n名={0}\r\n",config.Begin);
-                        sb.AppendFormat("前n名奖励={0}\r\n",config.BeginExtCredits);
-                        sb.AppendFormat("重复签到扣分={0}-{1}\r\n",config.RepeatMin,config.RepeatMax);
-                        sb.AppendFormat("随机奖励概率={0}\r\n",config.Random);
-                        sb.AppendFormat("随机奖励积分类型={0}\r\n",StaticData.RobotConfig.JfNames.ExtcreditsName(config.RndType));
-                        sb.AppendFormat("随机奖励数量={0}-{1}\r\n",config.RndMin,config.RndMax);
-                        sb.AppendFormat("排行榜数量={0}\r\n",config.Top);
-                        sb.AppendFormat("签到时间错误提示={0}\r\n",config.Lang1);
-                        sb.AppendFormat("重复签到扣分提示={0}\r\n",config.Lang2);
-                        sb.AppendFormat("签到成功提示={0}\r\n",config.Lang3);
-                        sb.AppendFormat("重复签到不扣分提示={0}\r\n",config.Lang4);
-                        sb.AppendFormat("签到帮助指令={0}\r\n",config.Lang5);
-                        sb.AppendFormat("签到帮助内容={0}\r\n",config.Lang6);
-                        sb.AppendFormat("签到等级指令={0}\r\n",config.Lang7);
-                        sb.AppendFormat("签到等级内容={0}\r\n",config.Lang8);
-                        sb.AppendFormat("签到总榜指令={0}\r\n",config.Lang9);
-                        sb.AppendFormat("签到总榜内容={0}\r\n",config.Lang10);
-                        sb.AppendFormat("签到月榜指令={0}\r\n",config.Lang11);
-                        sb.AppendFormat("签到月榜内容={0}\r\n",config.Lang12);
-                        sb.AppendFormat("今日签到指令={0}\r\n",config.Lang13);
-                        sb.AppendFormat("今日签到内容={0}\r\n",config.Lang14);
-                        sb.AppendFormat("发言总榜指令={0}\r\n",config.Lang15);
-                        sb.AppendFormat("发言总榜内容={0}\r\n",config.Lang16);
-                        sb.AppendFormat("发言月榜指令={0}\r\n",config.Lang17);
-                        sb.AppendFormat("发言月榜内容={0}\r\n",config.Lang18);
-                        sb.AppendFormat("签到信息指令={0}\r\n",config.Lang19);
-                        sb.AppendFormat("签到信息内容={0}\r\n",config.Lang20);
-                        sb.AppendFormat("随机奖励提示={0}\r\n",string.Join("\r\n",config.Lang21));
-
-                        sb.AppendFormat("请复制以上内容（不包括本句），修改后回复即可完成设置。");
-                        result = sb.ToString();
-                    }
-                    break;
-                    case "签到设置": {
-                        m = Regex.Match(m.Groups[3].Value,@"(\S{1,20})\=([\s\S]*?)(?=(\r\n?\S{1,20}\=)|$)");
-                        while (m.Success) {
-                            switch (m.Groups[1].Value) {
-                                case "签到指令":
-                                    config.Cmd = m.Groups[2].Value.Trim();
-                                    break;
-                                case "签到天数分级":
-                                    config.Days = (m.Groups[2].Value.Trim()).Split(",").Select(t => int.Parse(t)).ToList();
-                                    break;
-                                case "签到称号分级":
-                                    config.Levels = m.Groups[2].Value.Trim().Split(",".ToCharArray(),StringSplitOptions.RemoveEmptyEntries).ToList();
-                                    break;
-                                case "首次聊天欢迎词":
-                                    config.Hellos = m.Groups[2].Value.Trim().Split("\r\n".ToCharArray(),StringSplitOptions.RemoveEmptyEntries).ToList();
-                                    break;
-                                case "签到时段":
-                                    config.SignTime = (m.Groups[2].Value.Trim()).Split(",").Select(t => int.Parse(t)).ToList();
-                                    break;
-                                case "签到积分类型": {
-                                    config.Type = StaticData.RobotConfig.JfNames.ExtcreditsType(m.Groups[2].Value.Trim());
-                                }
-                                break;
-                                case "签到积分范围": {
-                                    var t1 = m.Groups[2].Value.Trim().Split('-');
-                                    config.Min = int.Parse(t1[0]);
-                                    config.Max = int.Parse(t1[1]);
-                                }
-                                break;
-                                case "连续签到奖励": {
-                                    config.Add = int.Parse(m.Groups[2].Value.Trim());
-                                }
-                                break;
-                                case "前n名": {
-                                    config.Begin = int.Parse(m.Groups[2].Value.Trim());
-                                }
-                                break;
-                                case "前n名奖励": {
-                                    config.BeginExtCredits = int.Parse(m.Groups[2].Value.Trim());
-                                }
-                                break;
-                                case "重复签到扣分": {
-                                    var t1 = m.Groups[2].Value.Trim().Split('-');
-                                    config.RepeatMin = int.Parse(t1[0]);
-                                    config.RepeatMax = int.Parse(t1[1]);
-                                }
-                                break;
-                                case "随机奖励积分类型": {
-                                    config.RndType = StaticData.RobotConfig.JfNames.ExtcreditsType(m.Groups[2].Value.Trim());
-                                }
-                                break;
-                                case "随机奖励概率": {
-                                    if (!StaticData.RobotConfig.AdminUsername.Split(",").Contains(username))
-                                        break;
-                                    config.Random = int.Parse(m.Groups[2].Value.Trim());
-                                }
-                                break;
-                                case "随机奖励数量": {
-                                    var t1 = m.Groups[2].Value.Trim().Split('-');
-                                    config.RndMin = int.Parse(t1[0]);
-                                    config.RndMax = int.Parse(t1[1]);
-                                }
-                                break;
-                                case "排行榜数量":
-                                    config.Top = int.Parse(m.Groups[2].Value.Trim());
-                                    break;
-                                case "签到时间错误提示":
-                                    config.Lang1 = m.Groups[2].Value.Trim();
-                                    break;
-                                case "重复签到扣分提示":
-                                    config.Lang2 = m.Groups[2].Value.Trim();
-                                    break;
-                                case "签到成功提示":
-                                    config.Lang3 = m.Groups[2].Value.Trim();
-                                    break;
-                                case "重复签到不扣分提示":
-                                    config.Lang4 = m.Groups[2].Value.Trim();
-                                    break;
-                                case "签到帮助指令":
-                                    config.Lang5 = m.Groups[2].Value.Trim();
-                                    break;
-                                case "签到帮助内容":
-                                    config.Lang6 = m.Groups[2].Value.Trim();
-                                    break;
-                                case "签到等级指令":
-                                    config.Lang7 = m.Groups[2].Value.Trim();
-                                    break;
-                                case "签到等级内容":
-                                    config.Lang8 = m.Groups[2].Value.Trim();
-                                    break;
-                                case "签到总榜指令":
-                                    config.Lang9 = m.Groups[2].Value.Trim();
-                                    break;
-                                case "签到总榜内容":
-                                    config.Lang10 = m.Groups[2].Value.Trim();
-                                    break;
-                                case "签到月榜指令":
-                                    config.Lang11 = m.Groups[2].Value.Trim();
-                                    break;
-                                case "签到月榜内容":
-                                    config.Lang12 = m.Groups[2].Value.Trim();
-                                    break;
-                                case "今日签到指令":
-                                    config.Lang13 = m.Groups[2].Value.Trim();
-                                    break;
-                                case "今日签到内容":
-                                    config.Lang14 = m.Groups[2].Value.Trim();
-                                    break;
-                                case "发言总榜指令":
-                                    config.Lang15 = m.Groups[2].Value.Trim();
-                                    break;
-                                case "发言总榜内容":
-                                    config.Lang16 = m.Groups[2].Value.Trim();
-                                    break;
-                                case "发言月榜指令":
-                                    config.Lang17 = m.Groups[2].Value.Trim();
-                                    break;
-                                case "发言月榜内容":
-                                    config.Lang18 = m.Groups[2].Value.Trim();
-                                    break;
-                                case "签到信息指令":
-                                    config.Lang19 = m.Groups[2].Value.Trim();
-                                    break;
-                                case "签到信息内容":
-                                    config.Lang20 = m.Groups[2].Value.Trim();
-                                    break;
-                                case "随机奖励提示":
-                                    config.Lang21 = m.Groups[2].Value.Trim().Split("\r\n".ToCharArray(),StringSplitOptions.RemoveEmptyEntries).ToList();
-                                    break;
-                                default:
-                                    return "存在未知指令，请先发送【查看签到设置】";
+                            if (config.Status)
+                                result = @"签到已处于开启状态！";
+                            else {
+                                config.Status = true;
+                                cc.SaveClusterConfig();
+                                result = @"签到开启成功！";
                             }
-                            m = m.NextMatch();
                         }
-                        cc.SaveClusterConfig();
-                        result = "设置成功";
-                    }
-                    break;
+                        break;
+                    case "关闭签到": {
+                            config.Status = false;
+                            cc.SaveClusterConfig();
+                            result = @"签到关闭成功！";
+                        }
+                        break;
+                    case "查看签到设置": {
+                            StringBuilder sb = new(string.Format(@"签到设置 {0}
+",ExternalId));
+                            sb.AppendFormat("自动签到={0}\r\n",config.FirstSign ? "开" : "关");
+                            sb.AppendFormat("签到指令={0}\r\n",config.Cmd);
+                            sb.AppendFormat("签到天数分级={0}\r\n",string.Join(",",config.Days));
+                            sb.AppendFormat("签到称号分级={0}\r\n",string.Join(",",config.Levels));
+                            sb.AppendFormat("首次聊天欢迎词={0}\r\n",string.Join("\r\n",config.Hellos));
+                            sb.AppendFormat("签到时段={0}\r\n",string.Join(",",config.SignTime));
+                            sb.AppendFormat("签到积分类型={0}\r\n",StaticData.RobotConfig.JfNames.ExtcreditsName(config.Type));
+                            sb.AppendFormat("签到积分范围={0}-{1}\r\n",config.Min,config.Max);
+                            sb.AppendFormat("连续签到奖励={0}\r\n",config.Add);
+                            sb.AppendFormat("前n名={0}\r\n",config.Begin);
+                            sb.AppendFormat("前n名奖励={0}\r\n",config.BeginExtCredits);
+                            sb.AppendFormat("重复签到扣分={0}-{1}\r\n",config.RepeatMin,config.RepeatMax);
+                            sb.AppendFormat("随机奖励概率={0}\r\n",config.Random);
+                            sb.AppendFormat("随机奖励积分类型={0}\r\n",StaticData.RobotConfig.JfNames.ExtcreditsName(config.RndType));
+                            sb.AppendFormat("随机奖励数量={0}-{1}\r\n",config.RndMin,config.RndMax);
+                            sb.AppendFormat("排行榜数量={0}\r\n",config.Top);
+                            sb.AppendFormat("签到时间错误提示={0}\r\n",config.Lang1);
+                            sb.AppendFormat("重复签到扣分提示={0}\r\n",config.Lang2);
+                            sb.AppendFormat("签到成功提示={0}\r\n",config.Lang3);
+                            sb.AppendFormat("重复签到不扣分提示={0}\r\n",config.Lang4);
+                            sb.AppendFormat("签到帮助指令={0}\r\n",config.Lang5);
+                            sb.AppendFormat("签到帮助内容={0}\r\n",config.Lang6);
+                            sb.AppendFormat("签到等级指令={0}\r\n",config.Lang7);
+                            sb.AppendFormat("签到等级内容={0}\r\n",config.Lang8);
+                            sb.AppendFormat("签到总榜指令={0}\r\n",config.Lang9);
+                            sb.AppendFormat("签到总榜内容={0}\r\n",config.Lang10);
+                            sb.AppendFormat("签到月榜指令={0}\r\n",config.Lang11);
+                            sb.AppendFormat("签到月榜内容={0}\r\n",config.Lang12);
+                            sb.AppendFormat("今日签到指令={0}\r\n",config.Lang13);
+                            sb.AppendFormat("今日签到内容={0}\r\n",config.Lang14);
+                            sb.AppendFormat("发言总榜指令={0}\r\n",config.Lang15);
+                            sb.AppendFormat("发言总榜内容={0}\r\n",config.Lang16);
+                            sb.AppendFormat("发言月榜指令={0}\r\n",config.Lang17);
+                            sb.AppendFormat("发言月榜内容={0}\r\n",config.Lang18);
+                            sb.AppendFormat("签到信息指令={0}\r\n",config.Lang19);
+                            sb.AppendFormat("签到信息内容={0}\r\n",config.Lang20);
+                            sb.AppendFormat("随机奖励提示={0}\r\n",string.Join("\r\n",config.Lang21));
+
+                            sb.AppendFormat("请复制以上内容（不包括本句），修改后回复即可完成设置。");
+                            result = sb.ToString();
+                        }
+                        break;
+                    case "签到设置": {
+                            m = Regex.Match(m.Groups[3].Value,@"(\S{1,20})\=([\s\S]*?)(?=(\r\n?\S{1,20}\=)|$)");
+                            while (m.Success) {
+                                switch (m.Groups[1].Value) {
+                                    case "签到指令":
+                                        config.Cmd = m.Groups[2].Value.Trim();
+                                        break;
+                                    case "签到天数分级":
+                                        config.Days = (m.Groups[2].Value.Trim()).Split(",").Select(t => int.Parse(t)).ToList();
+                                        break;
+                                    case "签到称号分级":
+                                        config.Levels = m.Groups[2].Value.Trim().Split(",".ToCharArray(),StringSplitOptions.RemoveEmptyEntries).ToList();
+                                        break;
+                                    case "首次聊天欢迎词":
+                                        config.Hellos = m.Groups[2].Value.Trim().Split("\r\n".ToCharArray(),StringSplitOptions.RemoveEmptyEntries).ToList();
+                                        break;
+                                    case "签到时段":
+                                        config.SignTime = (m.Groups[2].Value.Trim()).Split(",").Select(t => int.Parse(t)).ToList();
+                                        break;
+                                    case "签到积分类型": {
+                                            config.Type = StaticData.RobotConfig.JfNames.ExtcreditsType(m.Groups[2].Value.Trim());
+                                        }
+                                        break;
+                                    case "签到积分范围": {
+                                            var t1 = m.Groups[2].Value.Trim().Split('-');
+                                            config.Min = int.Parse(t1[0]);
+                                            config.Max = int.Parse(t1[1]);
+                                        }
+                                        break;
+                                    case "连续签到奖励": {
+                                            config.Add = int.Parse(m.Groups[2].Value.Trim());
+                                        }
+                                        break;
+                                    case "前n名": {
+                                            config.Begin = int.Parse(m.Groups[2].Value.Trim());
+                                        }
+                                        break;
+                                    case "前n名奖励": {
+                                            config.BeginExtCredits = int.Parse(m.Groups[2].Value.Trim());
+                                        }
+                                        break;
+                                    case "重复签到扣分": {
+                                            var t1 = m.Groups[2].Value.Trim().Split('-');
+                                            config.RepeatMin = int.Parse(t1[0]);
+                                            config.RepeatMax = int.Parse(t1[1]);
+                                        }
+                                        break;
+                                    case "随机奖励积分类型": {
+                                            config.RndType = StaticData.RobotConfig.JfNames.ExtcreditsType(m.Groups[2].Value.Trim());
+                                        }
+                                        break;
+                                    case "随机奖励概率": {
+                                            if (!StaticData.RobotConfig.AdminUsername.Split(",").Contains(username))
+                                                break;
+                                            config.Random = int.Parse(m.Groups[2].Value.Trim());
+                                        }
+                                        break;
+                                    case "随机奖励数量": {
+                                            var t1 = m.Groups[2].Value.Trim().Split('-');
+                                            config.RndMin = int.Parse(t1[0]);
+                                            config.RndMax = int.Parse(t1[1]);
+                                        }
+                                        break;
+                                    case "排行榜数量":
+                                        config.Top = int.Parse(m.Groups[2].Value.Trim());
+                                        break;
+                                    case "签到时间错误提示":
+                                        config.Lang1 = m.Groups[2].Value.Trim();
+                                        break;
+                                    case "重复签到扣分提示":
+                                        config.Lang2 = m.Groups[2].Value.Trim();
+                                        break;
+                                    case "签到成功提示":
+                                        config.Lang3 = m.Groups[2].Value.Trim();
+                                        break;
+                                    case "重复签到不扣分提示":
+                                        config.Lang4 = m.Groups[2].Value.Trim();
+                                        break;
+                                    case "签到帮助指令":
+                                        config.Lang5 = m.Groups[2].Value.Trim();
+                                        break;
+                                    case "签到帮助内容":
+                                        config.Lang6 = m.Groups[2].Value.Trim();
+                                        break;
+                                    case "签到等级指令":
+                                        config.Lang7 = m.Groups[2].Value.Trim();
+                                        break;
+                                    case "签到等级内容":
+                                        config.Lang8 = m.Groups[2].Value.Trim();
+                                        break;
+                                    case "签到总榜指令":
+                                        config.Lang9 = m.Groups[2].Value.Trim();
+                                        break;
+                                    case "签到总榜内容":
+                                        config.Lang10 = m.Groups[2].Value.Trim();
+                                        break;
+                                    case "签到月榜指令":
+                                        config.Lang11 = m.Groups[2].Value.Trim();
+                                        break;
+                                    case "签到月榜内容":
+                                        config.Lang12 = m.Groups[2].Value.Trim();
+                                        break;
+                                    case "今日签到指令":
+                                        config.Lang13 = m.Groups[2].Value.Trim();
+                                        break;
+                                    case "今日签到内容":
+                                        config.Lang14 = m.Groups[2].Value.Trim();
+                                        break;
+                                    case "发言总榜指令":
+                                        config.Lang15 = m.Groups[2].Value.Trim();
+                                        break;
+                                    case "发言总榜内容":
+                                        config.Lang16 = m.Groups[2].Value.Trim();
+                                        break;
+                                    case "发言月榜指令":
+                                        config.Lang17 = m.Groups[2].Value.Trim();
+                                        break;
+                                    case "发言月榜内容":
+                                        config.Lang18 = m.Groups[2].Value.Trim();
+                                        break;
+                                    case "签到信息指令":
+                                        config.Lang19 = m.Groups[2].Value.Trim();
+                                        break;
+                                    case "签到信息内容":
+                                        config.Lang20 = m.Groups[2].Value.Trim();
+                                        break;
+                                    case "随机奖励提示":
+                                        config.Lang21 = m.Groups[2].Value.Trim().Split("\r\n".ToCharArray(),StringSplitOptions.RemoveEmptyEntries).ToList();
+                                        break;
+                                    default:
+                                        return "存在未知指令，请先发送【查看签到设置】";
+                                }
+                                m = m.NextMatch();
+                            }
+                            cc.SaveClusterConfig();
+                            result = "设置成功";
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -441,47 +441,47 @@ namespace Byboy.SignPlugin
                                     config.SignTime = (m.Groups[2].Value.Trim()).Split(",").Select(t => int.Parse(t)).ToList();
                                     break;
                                 case "签到积分类型": {
-                                    config.Type = StaticData.RobotConfig.JfNames.ExtcreditsType(m.Groups[2].Value.Trim());
-                                }
-                                break;
+                                        config.Type = StaticData.RobotConfig.JfNames.ExtcreditsType(m.Groups[2].Value.Trim());
+                                    }
+                                    break;
                                 case "签到积分范围": {
-                                    var t1 = m.Groups[2].Value.Trim().Split('-');
-                                    config.Min = int.Parse(t1[0]);
-                                    config.Max = int.Parse(t1[1]);
-                                }
-                                break;
+                                        var t1 = m.Groups[2].Value.Trim().Split('-');
+                                        config.Min = int.Parse(t1[0]);
+                                        config.Max = int.Parse(t1[1]);
+                                    }
+                                    break;
                                 case "连续签到奖励": {
-                                    config.Add = int.Parse(m.Groups[2].Value.Trim());
-                                }
-                                break;
+                                        config.Add = int.Parse(m.Groups[2].Value.Trim());
+                                    }
+                                    break;
                                 case "前n名": {
-                                    config.Begin = int.Parse(m.Groups[2].Value.Trim());
-                                }
-                                break;
+                                        config.Begin = int.Parse(m.Groups[2].Value.Trim());
+                                    }
+                                    break;
                                 case "前n名奖励": {
-                                    config.BeginExtCredits = int.Parse(m.Groups[2].Value.Trim());
-                                }
-                                break;
+                                        config.BeginExtCredits = int.Parse(m.Groups[2].Value.Trim());
+                                    }
+                                    break;
                                 case "重复签到扣分": {
-                                    var t1 = m.Groups[2].Value.Trim().Split('-');
-                                    config.RepeatMin = int.Parse(t1[0]);
-                                    config.RepeatMax = int.Parse(t1[1]);
-                                }
-                                break;
+                                        var t1 = m.Groups[2].Value.Trim().Split('-');
+                                        config.RepeatMin = int.Parse(t1[0]);
+                                        config.RepeatMax = int.Parse(t1[1]);
+                                    }
+                                    break;
                                 case "随机奖励积分类型": {
-                                    config.RndType = StaticData.RobotConfig.JfNames.ExtcreditsType(m.Groups[2].Value.Trim());
-                                }
-                                break;
+                                        config.RndType = StaticData.RobotConfig.JfNames.ExtcreditsType(m.Groups[2].Value.Trim());
+                                    }
+                                    break;
                                 case "随机奖励概率": {
-                                    config.Random = int.Parse(m.Groups[2].Value.Trim());
-                                }
-                                break;
+                                        config.Random = int.Parse(m.Groups[2].Value.Trim());
+                                    }
+                                    break;
                                 case "随机奖励数量": {
-                                    var t1 = m.Groups[2].Value.Trim().Split('-');
-                                    config.RndMin = int.Parse(t1[0]);
-                                    config.RndMax = int.Parse(t1[1]);
-                                }
-                                break;
+                                        var t1 = m.Groups[2].Value.Trim().Split('-');
+                                        config.RndMin = int.Parse(t1[0]);
+                                        config.RndMax = int.Parse(t1[1]);
+                                    }
+                                    break;
                                 case "排行榜数量":
                                     config.Top = int.Parse(m.Groups[2].Value.Trim());
                                     break;
@@ -549,11 +549,11 @@ namespace Byboy.SignPlugin
                                     config.Lang21 = m.Groups[2].Value.Trim().Split("\r\n".ToCharArray(),StringSplitOptions.RemoveEmptyEntries).ToList();
                                     break;
                                 default: {
-                                    result = $@"@{e.Sender.Nickname}存在未知指令，请先发送【查看签到设置】";
-                                    await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
-                                }
-                                e.Cancel = true;
-                                return;
+                                        result = $@"@{e.Sender.Nickname}存在未知指令，请先发送【查看签到设置】";
+                                        await SendTextMsg(sender.OriginalId,new() { new() { AtUsernames = e.Username,Username = e.GroupUsername,Type = 1,Content = result } });
+                                    }
+                                    e.Cancel = true;
+                                    return;
                             }
                             m = m.NextMatch();
                         }
@@ -652,7 +652,7 @@ namespace Byboy.SignPlugin
                 var template = config.Lang8.Split(new string[] { "[for]","[/for]" },StringSplitOptions.RemoveEmptyEntries);
                 if (template != null) {
                     sb.Append(template[0]);
-                    for (int i = 0; i < config.Days.Count; i++) {
+                    for (int i = 0;i < config.Days.Count;i++) {
                         sb.AppendFormat(template[1],i,config.Days[i],config.Levels[i]);
                     }
                 } else
@@ -814,7 +814,7 @@ namespace Byboy.SignPlugin
 
         private int GetLevel(ClusterSign sign,ConfigObj configObj)
         {
-            for (int i = configObj.Days.Count - 1; i >= 0; i--) {
+            for (int i = configObj.Days.Count - 1;i >= 0;i--) {
                 if (sign.SignCount >= configObj.Days[i])
                     return i;
             }
@@ -825,6 +825,11 @@ namespace Byboy.SignPlugin
         public override void Install()
         {
             Eve.OnLog(this,"初始化成功");
+        }
+        public override BaseConfig Setting()
+        {
+            new Setting().ShowDialog();
+            return base.Setting();
         }
     }
 }
