@@ -1,12 +1,11 @@
 using SqlSugar;
-using System;
 
 namespace Byboy.SignPlugin.DbUtils
 {
     public static class DbUtil
     {
-         public static SqlSugarScope Db = new(new ConnectionConfig() {
-            ConnectionString = "Data Source=Db/Byboy.SignPlugin.db;",//连接符字串
+        public static SqlSugarScope Db = new(new ConnectionConfig() {
+            ConnectionString = "Data Source=Plugins/Byboy.SignPlugin.db;",//连接符字串
             DbType = DbType.Sqlite,//数据库类型
             InitKeyType = InitKeyType.Attribute,
             IsAutoCloseConnection = true //不设成true要手动close
@@ -26,7 +25,7 @@ namespace Byboy.SignPlugin.DbUtils
         internal static int DeleteSignByLastSentTime(string groupUsername,DateTime dateTime)
         {
             try {
-               
+
                 return Db.Deleteable<ClusterSign>().Where(t => t.GroupUsername == groupUsername && t.LastSentTime < dateTime).ExecuteCommand();
             } catch (Exception) {
             }
@@ -51,15 +50,15 @@ namespace Byboy.SignPlugin.DbUtils
         /// </summary>
         /// <param name="ExternalId"></param>
         /// <returns></returns>
-        internal static ClusterConfig GetClusterConfig(this string chatroom)
+        internal static ClusterConfig GetClusterConfig(this Plugin plugin,string chatroom)
         {
             try {
-                var cc = configs.FirstOrDefault(t => t.Id == 2);
+                var cc = configs.FirstOrDefault(t => t.Id == 1);
                 if (cc != null && cc.ConfigObj.Status)
                     return cc;
                 cc = configs.FirstOrDefault(t => t.GroupUsername == chatroom);
                 if (cc == null) {
-                    var cc0 = configs.FirstOrDefault(t => t.Id == 1);
+                    var cc0 = configs.FirstOrDefault(t => t.GroupUsername == "1");
                     cc = cc0;
                     cc.Id = 0;
                     cc.GroupUsername = chatroom;
@@ -68,10 +67,10 @@ namespace Byboy.SignPlugin.DbUtils
                 }
                 return cc;
             } catch (Exception ex) {
-                Console.WriteLine(ex);
+                plugin.OnLog($"{ex}");
             }
             return null!;
-           
+
         }
         /// <summary>
         /// 带有缓存机制的
@@ -104,7 +103,7 @@ namespace Byboy.SignPlugin.DbUtils
         /// <param name="Top"></param>
         /// <param name="Time"></param>
         /// <returns></returns>
-        internal static List<ClusterSign>    GetSignByLastSignTime(string groupUsername,int top,DateTime today)
+        internal static List<ClusterSign> GetSignByLastSignTime(string groupUsername,int top,DateTime today)
         {
             try {
                 return Db.Queryable<ClusterSign>().Where(t => t.SignCount > 0 && t.GroupUsername == groupUsername && t.LastSignTime > today.Date).Take(top).OrderBy(t => t.LastSignTime,OrderByType.Desc).ToList();
@@ -167,7 +166,7 @@ namespace Byboy.SignPlugin.DbUtils
             try {
                 return Db.Queryable<ClusterSign>().Where(t => t.GroupUsername == groupUsername && t.SignCount > 0).Take(top).OrderBy(t => t.SignCount,OrderByType.Desc).ToList();
             } catch (Exception) {
-                
+
             }
             return null!;
         }
@@ -188,7 +187,19 @@ namespace Byboy.SignPlugin.DbUtils
         internal static void SaveClusterConfig(this ClusterConfig config)
         {
             try {
-            var r =Db.Storageable(config).ExecuteCommand();
+                var r = Db.Storageable(config).ExecuteCommand();
+            } catch (Exception ex) {
+                Console.WriteLine(ex);
+            }
+        }
+        /// <summary>
+        /// 保存配置
+        /// </summary>
+        /// <param name="config"></param>
+        internal static void SaveClusterConfig(this List<ClusterConfig> configs)
+        {
+            try {
+                var r = Db.Storageable(configs).ExecuteCommand();
             } catch (Exception ex) {
                 Console.WriteLine(ex);
             }
@@ -204,6 +215,33 @@ namespace Byboy.SignPlugin.DbUtils
             } catch (Exception ex) {
                 Console.WriteLine(ex);
             }
+        }
+
+        internal static long GetSignCount()
+        {
+            try {
+                return Db.Queryable<ClusterSign>().Count();
+            } catch (Exception) {
+            }
+            return 0;
+        }
+
+        internal static List<ClusterSign> GetSignCountPath(int v)
+        {
+            try {
+                return Db.Queryable<ClusterSign>().Skip(v).Take(50).ToList();
+            } catch (Exception) {
+            }
+            return null!;
+        }
+
+        internal static int DeleteClusterConfig(List<string> externalIds)
+        {
+            try {
+                return Db.Deleteable<ClusterConfig>().Where(t => externalIds.Contains(t.GroupUsername)).ExecuteCommand();
+            } catch (Exception) {
+            }
+            return 0;
         }
     }
 }

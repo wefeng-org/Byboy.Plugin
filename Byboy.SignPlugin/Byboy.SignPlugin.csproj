@@ -5,23 +5,29 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	<UseWindowsForms>true</UseWindowsForms>
+	  <LangVersion>12.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <Reference Include="MG.Protobuf">
       <HintPath>..\..\wxssc\WinFromWeChat\bin\Release\net6.0-windows\publish\win-x64\Bin\MG.Protobuf.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="MG.WeCode">
       <HintPath>..\..\wxssc\WinFromWeChat\bin\Release\net6.0-windows\publish\win-x64\Bin\MG.WeCode.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Plugin">
       <HintPath>..\..\wxssc\WinFromWeChat\bin\Release\net6.0-windows\publish\win-x64\Bin\Plugin.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="SqlSugar">
       <HintPath>..\..\wxssc\WinFromWeChat\bin\Release\net6.0-windows\publish\win-x64\Bin\SqlSugar.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="SuperWx">
       <HintPath>..\..\wxssc\WinFromWeChat\bin\Release\net6.0-windows\publish\win-x64\Bin\SuperWx.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
 

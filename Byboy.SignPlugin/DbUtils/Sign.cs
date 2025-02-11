@@ -342,6 +342,7 @@ namespace Byboy.SignPlugin.DbUtils
     /// <summary>
     /// 数据库存储
     /// </summary>
+    [SugarIndex("unique_codetable1_CreateTime",nameof(ClusterConfig.GroupUsername),OrderByType.Desc,true)]
     public class ClusterConfig
     {
         [SugarColumn(IsPrimaryKey = true,IsIdentity = true)]
@@ -357,6 +358,18 @@ namespace Byboy.SignPlugin.DbUtils
         /// 结构化config
         /// </summary>
         public ConfigObj ConfigObj { get; set; }
+        /// <summary>
+        /// 群昵称
+        /// </summary>
+        public string GroupNickName { get; set; } = string.Empty;
+        /// <summary>
+        /// 群成员数量
+        /// </summary>
+        public int MemberCount { get; set; }
+        /// <summary>
+        /// 创建者
+        /// </summary>
+        public string Creator { get; set; } = string.Empty;
 
         public ClusterConfig()
         {

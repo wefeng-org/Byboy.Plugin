@@ -20,6 +20,7 @@ namespace Byboy.SignPlugin
         public override string Description => "用户签到";
 
         public override BaseConfig Config { get; set; }
+        public SignConfig gConfig = new SignConfig();
         public override bool IsOpen { get; set; }
         public Random r = new();
 
@@ -30,18 +31,22 @@ namespace Byboy.SignPlugin
                 DbUtil.Db.DbMaintenance.CreateDatabase();
                 // 初始化表
                 DbUtil.Db.CodeFirst.InitTables(typeof(ClusterSign),typeof(ClusterConfig));
-                DbUtil.SaveClusterConfig(new ClusterConfig() { Id = 1,GroupUsername = "默认配置",ConfigObj = new ConfigObj { Status = false } });
-                DbUtil.SaveClusterConfig(new ClusterConfig() { Id = 2,GroupUsername = "全局配置",ConfigObj = new ConfigObj { Status = false } });
+                var list = new List<ClusterConfig> {
+                 new() { Id = 1,GroupUsername = "0",Creator = "",GroupNickName = "默认配置",MemberCount = 0,ConfigObj = new ConfigObj { Status = false } },
+                 new() { Id = 2,GroupUsername = "1",Creator = "",GroupNickName = "全局配置",MemberCount = 0,ConfigObj = new ConfigObj { Status = false } }
+                };
+                DbUtil.SaveClusterConfig(list);
+                DbUtil.configs = DbUtil.Db.Queryable<ClusterConfig>().ToList();
+                gConfig.Load();
+                // 订阅收到群消息事件
+                ReceiveGroupMessage += Plugin_ReceiveGroupMessage;
+                ReceiveFriendMessage += Plugin_ReceiveFriendMessage;
+                 
             } catch (Exception ex) {
-                Console.WriteLine(ex);
+                Eve.OnLog(this,$"{ex}");
             }
 
-            DbUtil.configs = DbUtil.Db.Queryable<ClusterConfig>().ToList();
-            // 订阅收到群消息事件
-            ReceiveGroupMessage += Plugin_ReceiveGroupMessage;
-            ReceiveFriendMessage += Plugin_ReceiveFriendMessage;
-
-            Eve.OnLog(this,"开启成功");
+            OnLog("开启成功");
         }
 
 
@@ -69,7 +74,7 @@ namespace Byboy.SignPlugin
                 if (!m.Success)
                     return null!;
                 string ExternalId = m.Groups["chatroom"].Value;
-                ClusterConfig cc = ExternalId.GetClusterConfig();
+                ClusterConfig cc = this.GetClusterConfig(ExternalId);
                 if (cc == null)
                     return null!;
 
@@ -297,13 +302,22 @@ namespace Byboy.SignPlugin
 
         private async Task Plugin_ReceiveGroupMessage(WXUserLogin sender,global::Plugin.EveEntitys.ReceiveGroupMessageArgs e)
         {
-            var cc = e.GroupUsername.GetClusterConfig();
-            if (cc == null)
+            var cc = this.GetClusterConfig(e.GroupUsername);
+            if (cc == null) {
                 return;
+            }
+
+            if (string.IsNullOrWhiteSpace(cc.Creator)) {
+                var j = await GetContact(sender.OriginalId,[e.GroupUsername]);
+                cc.GroupNickName = j.ContactList[0].NickName.String_t;
+                cc.Creator = j.ContactList[0].ChatRoomOwner;
+                cc.MemberCount = (int)j.ContactList[0].NewChatroomData.MemberCount;
+                cc.SaveClusterConfig();
+            }
             var config = cc.ConfigObj;
             var username = e.Username;
 
-            if (e.Content.Text == "开启签到") {
+            if (e.Content.Text == ("开启签到")) {
                 if (IsRobotAdmins(username) || e.Group.OwnerUsername == username || e.Group.IsAdmin) {
                     string result = null!;
                     if (cc.Id == 2 && !IsRobotAdmins(username))
@@ -327,7 +341,7 @@ namespace Byboy.SignPlugin
                     e.Cancel = true;
                     return;
                 }
-            } else if (e.Content.Text == "关闭签到") {
+            } else if (e.Content.Text == ("关闭签到")) {
                 if (IsRobotAdmins(username) || e.Group.OwnerUsername == username || e.Group.IsAdmin) {
                     string result = null!;
                     if (cc.Id == 2 && !IsRobotAdmins(username))
@@ -360,7 +374,7 @@ namespace Byboy.SignPlugin
                     e.Cancel = true;
                     return;
                 }
-            } else if (e.Content.Text.Trim() == "查看签到设置") {
+            } else if (e.Content.Text.StartsWith("查看签到设置")) {
                 if (IsRobotAdmins(username) || e.Group.OwnerUsername == username || e.Group.IsAdmin) {
                     string result = null!;
                     if (cc.Id == 2 && !IsRobotAdmins(username))
@@ -828,7 +842,7 @@ namespace Byboy.SignPlugin
         }
         public override BaseConfig Setting()
         {
-            new Setting().ShowDialog();
+            new FormMain(this).ShowDialog();
             return base.Setting();
         }
     }
