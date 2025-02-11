@@ -229,7 +229,7 @@ namespace Byboy.SignPlugin.DbUtils
         internal static List<ClusterSign> GetSignCountPath(int v)
         {
             try {
-                return Db.Queryable<ClusterSign>().Skip(v).Take(50).ToList();
+                return Db.Queryable<ClusterSign>().OrderBy(t => t.Id,OrderByType.Desc).Skip(v).Take(50).ToList();
             } catch (Exception) {
             }
             return null!;

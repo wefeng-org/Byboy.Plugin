@@ -1,4 +1,5 @@
 ﻿using Byboy.SignPlugin.DbUtils;
+using Plugin;
 using System.ComponentModel;
 
 namespace Byboy.SignPlugin
@@ -18,20 +19,32 @@ namespace Byboy.SignPlugin
             try {
                 chkOnlyAdminEdit.Checked = plugin.gConfig.OnlyAdminEdit;
 
-                List<string> ExternalIds = new List<string>();
-                DbUtil.configs.ForEach(t => {
-                    ExternalIds.Add(t.GroupUsername);
-                    var c = plugin.GetClusterConfig(t.GroupUsername);
-                    lvCluster.Items.Add(new ListViewItem(new string[] { t.GroupUsername.ToString(),t.GroupNickName,t.MemberCount.ToString(),t.Creator,c != null && c.ConfigObj.Status ? "开" : "关" }));
+
+                string groupUsername = "1";
+                var c = plugin.GetClusterConfig(groupUsername);
+                lvCluster.Items.Add(new ListViewItem([c.GroupUsername.ToString(),"全局设置","0","0",c != null && c.ConfigObj.Status ? "开" : "关"]));
+
+                groupUsername = "0";
+                c = plugin.GetClusterConfig(groupUsername);
+                lvCluster.Items.Add(new ListViewItem([c.GroupUsername.ToString(),"默认设置","0","0",c != null && c.ConfigObj.Status ? "开" : "关"]));
+
+                List<string> ExternalIds = [];
+                foreach (var item in StaticData.GroupContacts) {
+                    item.Value.ForEach(t => {
+                        ExternalIds.Add(t.Username);
+                        c = plugin.GetClusterConfig(t.Username);
+                        lvCluster.Items.Add(new ListViewItem([c.GroupUsername.ToString(),c.GroupNickName,c.MemberCount.ToString(),c.Creator,c != null && c.ConfigObj.Status ? "开" : "关"]));
+
+                    });
                 }
-                );
+                DbUtil.configs.Where(c1 => !c1.GroupUsername.Contains("@") && !ExternalIds.Contains(c1.GroupUsername)).ToList().ForEach(c1 => {
+                    lvCluster.Items.Add(new ListViewItem([c1.GroupUsername.ToString(),c1.GroupNickName,c1.MemberCount.ToString(),c1.Creator,c1 != null && c1.ConfigObj.Status ? "开" : "关"]));
+                });
             } catch (Exception ex) {
                 plugin.OnLog($"加载配置失败{ex}");
             }
         }
 
-        string SortCol = "Id";
-        string Sort = "DESC";
         /// <summary>
         /// 从1开始的页数
         /// </summary>
@@ -56,7 +69,7 @@ namespace Byboy.SignPlugin
 
             lvSign.Items.Clear();
             css.ForEach(cs => {
-                lvSign.Items.Add(new ListViewItem(new string[] { cs.Id.ToString(),cs.GroupUsername.ToString(),cs.Username.ToString(),cs.Nickname,cs.SignCount.ToString(),cs.MonthSignCount.ToString(),cs.Continue.ToString(),cs.LastSignTime.ToString(),cs.Extcredits.ToString(),cs.AddTime.ToString(),cs.LastSentTime.ToString(),cs.SentCount.ToString(),cs.MonthSentCount.ToString() }));
+                lvSign.Items.Add(new ListViewItem([cs.Id.ToString(),cs.GroupUsername.ToString(),cs.Username.ToString(),cs.Nickname,cs.SignCount.ToString(),cs.MonthSignCount.ToString(),cs.Continue.ToString(),cs.LastSignTime.ToString(),cs.Extcredits.ToString(),cs.AddTime.ToString(),cs.LastSentTime.ToString(),cs.SentCount.ToString(),cs.MonthSentCount.ToString()]));
             }
             );
         }
@@ -99,14 +112,14 @@ namespace Byboy.SignPlugin
                 this.lvSign.Columns[e.Column].Tag = true;
             bool flag = (bool)this.lvSign.Columns[e.Column].Tag;
             if (flag) {
-                Sort = "ASC";
+                //Sort = "ASC";
                 this.lvSign.Columns[e.Column].Tag = false;
             } else {
-                Sort = "DESC";
+                //Sort = "DESC";
                 this.lvSign.Columns[e.Column].Tag = true;
             }
             //cs.Id., cs.ExternalId., cs.QQ., cs.Nick, cs.SignCount., cs.MonthSignCount., cs.Continue., cs.LastSignTime., cs.Extcredits., cs.AddTime., cs.LastSentTime., cs.SentCount., cs.MonthSentCount.
-            SortCol = new string[] { "Id","ExternalId","QQ","Nick","SignCount","MonthSignCount","Continue","LastSignTime","Extcredits","AddTime","LastSentTime","SentCount","MonthSentCount" }[e.Column];
+            //SortCol = new string[] { "Id","ExternalId","QQ","Nick","SignCount","MonthSignCount","Continue","LastSignTime","Extcredits","AddTime","LastSentTime","SentCount","MonthSentCount" }[e.Column];
             switch (e.Column) {
                 case 0:
                 case 1:
